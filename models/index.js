@@ -1,7 +1,7 @@
 const config = require('../config/config.js');
 const catchAsync = require('../utils/catchAsync');
 const { Sequelize } = require('sequelize');
-
+//come.nt
 const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
   host: config.HOST,
   dialect: config.dialect,
