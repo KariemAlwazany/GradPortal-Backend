@@ -1,0 +1,19 @@
+{
+  "name": "sw_project",
+  "version": "1.0.0",
+  "description": "Software Graduation Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YazanM23/SW_GP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YazanM23/SW_GP/issues"
+  },
+  "homepage": "https://github.com/YazanM23/SW_GP#readme"
+}
