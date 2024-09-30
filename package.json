@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "databaseMAC": "docker run -p 3306:3306 -v ./DockerVolume/SqlData:/var/lib/mysql -d sw_project",
-    "database": "docker run -p 3306:3306 -v C:/DockerVolume/SqlData:/var/lib/mysql -d sw_project",
+    "databaseMAC": "docker run -p 3306:3306 -v ./DockerVolume/SqlData:/var/lib/mysql -d swproject",
+    "database": "docker run -p 3306:3306 -v C:/DockerVolume/SqlData:/var/lib/mysql -d swproject",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
@@ -20,7 +20,6 @@
   "bugs": {
     "url": "https://github.com/YazanM23/SW_GP/issues"
   },
-
   "homepage": "https://github.com/YazanM23/SW_GP#readme",
   "dependencies": {
     "axios": "^1.6.8",
