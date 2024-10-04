@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "databaseMAC": "docker run -p 3306:3306 -v ./DockerVolume/SqlData:/var/lib/mysql -d swproject",
-    "database": "docker run -p 3306:3306 -v C:/DockerVolume/SqlData:/var/lib/mysql -d swproject",
+    "databaseMAC": "docker run -p 3306:3306 -v ./DockerVolume/SqlData:/var/lib/mysql -d swp",
+    "database": "docker run -p 3306:3306 -v C:/DockerVolume/SqlData:/var/lib/mysql -d swp",
     "watch:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js",
     "build:js": "parcel watch ./public/js/index.js --out-dir ./public/js --out-file bundle.js"
   },
