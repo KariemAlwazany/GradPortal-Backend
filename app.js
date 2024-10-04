@@ -2,12 +2,11 @@ const express = require('express');
 const path = require('path');
 const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRouter');
-// const gardenRouter = require('./routes/gardenRouter');
-// const plotsRouter = require('./routes/plotsRouter');
-// const eventsRouter = require('./routes/eventsRouter');
-// const resourcesRouter = require('./routes/resourcesRouter');
-// const articlesRouter = require('./routes/articlesRouter');
-// const associations = require('./db_associations/associations');
+const sellerRouter = require('./routes/sellerRouter');
+const studentRouter = require('./routes/studentRouter');
+
+const doctorRouter = require('./routes/doctorRouter');
+const associations = require('./db_associations/associations');
 // const weatherRouter = require('./routes/externalApiWeatherRouter');
 // const soilRouter = require('./routes/externalApiSoilRouter');
 const globalErrorHandler = require('./controllers/errorController');
@@ -36,6 +35,9 @@ const limiter = rateLimit({
 // app.use('/', viewRouter);
 app.use('/GreenThumb', limiter);
 app.use('/GreenThumb/v1/users', userRouter);
+app.use('/GreenThumb/v1/seller', sellerRouter);
+app.use('/GreenThumb/v1/student', studentRouter);
+app.use('/GreenThumb/v1/doctor', doctorRouter);
 // app.use('/GreenThumb/v1/crops', cropsRouter);
 // app.use('/GreenThumb/v1/gardens', gardenRouter);
 // app.use('/GreenThumb/v1/plots', plotsRouter);

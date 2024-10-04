@@ -1,9 +1,5 @@
 const { User } = require('../models/userModel');
+const { Seller } = require('../models/sellerModel');
 
-User.hasMany(Garden, { foreignKey: 'owner_id' });
-
-User.hasMany(Article, { foreignKey: 'Publisher_ID' });
-// Article.belongsTo(User, { foreignKey: 'Publisher_ID' });
-
-User.hasMany(Resource, { foreignKey: 'OwnerID' });
 // Resource.belongsTo(User, { foreignKey: 'OwnerID' });
+// User.hasMany(Seller, { foreignKey: 'Username' });

@@ -73,13 +73,13 @@ const User = sequelize.define(
   },
   {
     indexes: [
-      { unique: true, fields: ['email'] },
-      { unique: true, fields: ['username'] },
+      { unique: true, fields: ['Email'] },
+      { unique: true, fields: ['Username'] },
     ],
   },
 );
 User.beforeSave(async (user, options) => {
-  if (user.changed('password') || user.isNewRecord) {
+  if (user.changed('Password') || user.isNewRecord) {
     user.password = await bcrypt.hash(user.password, 12);
     user.passwordChangedAt = Date.now() - 1000;
     user.passwordconfirm = undefined;
