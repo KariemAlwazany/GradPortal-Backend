@@ -3,25 +3,24 @@ const { sequelize } = require('.');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
 const crypto = require('crypto');
-const { Event } = require('./eventsModel');
 const AppError = require('../utils/appError');
 
 const User = sequelize.define(
   'User',
   {
-    username: {
+    Username: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    firstname: {
+    Firstname: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    lastname: {
+    Lastname: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    password: {
+    Password: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -35,7 +34,7 @@ const User = sequelize.define(
         },
       },
     },
-    email: {
+    Email: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -46,7 +45,7 @@ const User = sequelize.define(
         },
       },
     },
-    role: {
+    Role: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'user',
@@ -71,10 +70,6 @@ const User = sequelize.define(
     //   defaultValue: true,
     //   select: false,
     // },
-    Event_ID: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-    },
   },
   {
     indexes: [
