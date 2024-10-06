@@ -28,7 +28,7 @@ const User = sequelize.define(
       type: DataTypes.VIRTUAL,
       validate: {
         isPasswordMatch(value) {
-          if (this.password !== value) {
+          if (this.Password !== value) {
             throw new AppError('Passwords do not match', 401);
           }
         },
@@ -80,7 +80,7 @@ const User = sequelize.define(
 );
 User.beforeSave(async (user, options) => {
   if (user.changed('Password') || user.isNewRecord) {
-    user.password = await bcrypt.hash(user.password, 12);
+    user.Password = await bcrypt.hash(user.Password, 12);
     user.passwordChangedAt = Date.now() - 1000;
     user.passwordconfirm = undefined;
   }

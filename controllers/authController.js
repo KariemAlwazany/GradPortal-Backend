@@ -39,39 +39,39 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   const {
-    username,
-    firstname,
-    lastname,
-    email,
-    password,
+    Username,
+    Firstname,
+    Lastname,
+    Email,
+    Password,
     passwordconfirm,
-    role,
+    Role,
   } = req.body;
   const newUser = await User.create({
-    username: username,
-    firstname: firstname,
-    lastname: lastname,
-    email: email,
-    password: password,
+    Username: Username,
+    Firstname: Firstname,
+    Lastname: Lastname,
+    Email: Email,
+    Password: Password,
     passwordconfirm: passwordconfirm,
-    role: role,
+    Role: Role,
   });
 
   createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  const { Email, Password } = req.body;
 
-  if (!email || !password) {
+  if (!Email || !Password) {
     return next(new AppError('Please provide email and password!', 400));
   }
 
   const user = await User.findOne({
-    where: { email: email },
+    where: { Email: Email },
   });
 
-  if (!user || !(await user.correctPassword(password, user.password))) {
+  if (!user || !(await user.correctPassword(Password, user.Password))) {
     return next(new AppError('Incorrect email or password', 401));
   }
 
