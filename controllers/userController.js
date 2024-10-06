@@ -57,6 +57,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     message: 'Deleted',
   });
 });
+
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);
