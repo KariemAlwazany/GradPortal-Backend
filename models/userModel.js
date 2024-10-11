@@ -47,6 +47,11 @@ const User = sequelize.define(
       allowNull: false,
       defaultValue: 'user',
     },
+    approval: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'true',
+    },
 
     passwordChangedAt: {
       type: DataTypes.VIRTUAL,

@@ -25,3 +25,4 @@ const Doctor = sequelize.define(
     indexes: [{ unique: true, fields: ['Username'] }],
   },
 );
+module.exports = { Doctor };
