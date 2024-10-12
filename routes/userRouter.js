@@ -15,7 +15,7 @@ router.get('/me', userController.getMe, userController.getUser);
 router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);
 
-router.use(authController.restrictTo('admin'));
+// router.use(authController.restrictTo('admin'));
 router.get('/', userController.getAllUsers);
 router.get('/:id', userController.getUser);
 router.patch('/:id', userController.updateUser);
