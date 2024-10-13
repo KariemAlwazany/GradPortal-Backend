@@ -13,7 +13,7 @@ const Doctor = sequelize.define(
       allowNull: false,
     },
     Degree: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT('long'),
       allowNull: true,
     },
     Role: {

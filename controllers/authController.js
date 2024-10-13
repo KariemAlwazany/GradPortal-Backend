@@ -44,8 +44,9 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const { Username, FullName, Email, Password, passwordconfirm, Role } =
+  const { Username, FullName, Email, Password, passwordconfirm, Role, Degree } =
     req.body;
+  console.log(req.body);
   approval = 'true';
   if (Role == 'Doctor' || Role == 'Seller') {
     approval = 'false';
@@ -57,6 +58,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     Password: Password,
     passwordconfirm: passwordconfirm,
     Role: Role,
+
     approval: approval,
   });
 
@@ -64,13 +66,13 @@ exports.signup = catchAsync(async (req, res, next) => {
     const newStudent = await Student.create({
       Username: Username,
       Registration_number: req.body.registrationNumber,
-      Degree: Role,
+      Degree: Degree,
     });
   } else if (Role == 'Doctor') {
     const newDoctor = await Doctor.create({
       Username: Username,
       Registration_number: req.body.registrationNumber,
-      Degree: Role,
+      Degree: Degree,
       Role: Role,
     });
   } else if (Role == 'Seller') {
