@@ -156,7 +156,7 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ Where: { email: req.body.email } });
+  const user = await User.findOne({ Where: { Email: req.body.Email } });
   if (!user) {
     return next(new AppError('There is no user with this email address.', 404));
   }
@@ -170,7 +170,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   try {
     await sendEmail({
-      email: req.body.email,
+      Email: req.body.Email,
       subject: 'Your password reset token (valid for 10 min)',
       message,
     });
@@ -230,6 +230,18 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.passwordconfirm = passwordconfirm;
   await user.save();
 
+  createSendToken(user, 200, res);
+});
+exports.changePassword = catchAsync(async (req, res, next) => {
+  const { password, email } = req.body;
+  console.log(req.body);
+  const user = await User.update(
+    { Password: password },
+    {
+      where: { Email: email },
+    },
+  );
+  console.log(user);
   createSendToken(user, 200, res);
 });
 
