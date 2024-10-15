@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
-const Seller = require('./sellerModel.js');  // Make sure to use the correct path to your Shop model
+const Sellers = require('./sellerModel.js');  // Make sure to use the correct path to your Shop model
 
 const Items = sequelize.define(
   'Items',
@@ -31,14 +31,10 @@ const Items = sequelize.define(
       allowNull: true,
       defaultValue: false
     },
-    Location: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     Shop_name: {
       type: DataTypes.STRING,
       references: {
-        model: 'Seller', // The name of the referenced table
+        model: 'Sellers', // The name of the referenced table
         key: 'Shop_name',      // The primary key in the Shop table
       },
       onUpdate: 'CASCADE',  // Options when Shop is updated
@@ -53,7 +49,7 @@ const Items = sequelize.define(
 );
 // Defining the relationship
 Items.associate = function(models) {
-  Items.belongsTo(models.Seller, {
+  Items.belongsTo(models.Sellers, {
     foreignKey: 'Shop_name',
     as: 'shop',
   });
