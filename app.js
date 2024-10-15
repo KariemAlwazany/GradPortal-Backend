@@ -4,7 +4,7 @@ const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRouter');
 const sellerRouter = require('./routes/sellerRouter');
 const studentRouter = require('./routes/studentRouter');
-
+const itemsRouter = require('./routes/itemsRouter');
 const doctorRouter = require('./routes/doctorRouter');
 const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
@@ -35,6 +35,7 @@ app.use('/GP/v1/users', userRouter);
 app.use('/GP/v1/seller', sellerRouter);
 app.use('/GP/v1/student', studentRouter);
 app.use('/GP/v1/doctor', doctorRouter);
+app.use('/GP/v1/seller/items', itemsRouter);
 app.use('/GP/v1/projects', projectsRouter);
 
 app.all('*', (req, res, next) => {
