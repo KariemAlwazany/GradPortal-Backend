@@ -2,6 +2,9 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const db = require('./../models/userModel');
+const sellerDB = require('./../models/sellerModel');
+const studentDB = require('./../models/studentModel');
+const doctorDB = require('./../models/doctorModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('./../utils/email');
@@ -41,23 +44,23 @@ exports.signup = catchAsync(async (req, res, next) => {
   const {
     Username,
     FullName,
-
     Email,
     Password,
     passwordconfirm,
     Role,
   } = req.body;
+
   const newUser = await User.create({
     Username: Username,
     FullName: FullName,
     Email: Email,
     Password: Password,
     passwordconfirm: passwordconfirm,
-    Role: Role,
+    Role: Role, 
   });
-
   createSendToken(newUser, 201, res);
 });
+
 
 exports.login = catchAsync(async (req, res, next) => {
   const { Email, Password } = req.body;
