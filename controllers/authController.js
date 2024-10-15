@@ -2,12 +2,18 @@ const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const db = require('./../models/userModel');
+const db1 = require('./../models/studentModel');
+const db2 = require('./../models/doctorModel');
+const db3 = require('./../models/sellerModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('./../utils/email');
 const { Op } = require('sequelize');
 
 const User = db.User;
+const Student = db1.Student;
+const Doctor = db2.Doctor;
+const Seller = db3.Seller;
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -38,26 +44,46 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const {
-    Username,
-    FullName,
-    Email,
-    Password,
-    passwordconfirm,
-    Role,
-  } = req.body;
-
+  const { Username, FullName, Email, Password, passwordconfirm, Role, Degree } =
+    req.body;
+  console.log(req.body);
+  approval = 'true';
+  if (Role == 'Doctor' || Role == 'Seller') {
+    approval = 'false';
+  }
   const newUser = await User.create({
     Username: Username,
     FullName: FullName,
     Email: Email,
     Password: Password,
     passwordconfirm: passwordconfirm,
-    Role: Role, 
+    Role: Role,
+
+    approval: approval,
   });
+
+  if (Role == 'Student') {
+    const newStudent = await Student.create({
+      Username: Username,
+      Registration_number: req.body.registrationNumber,
+      Degree: Degree,
+    });
+  } else if (Role == 'Doctor') {
+    const newDoctor = await Doctor.create({
+      Username: Username,
+      Registration_number: req.body.registrationNumber,
+      Degree: Degree,
+      Role: Role,
+    });
+  } else if (Role == 'Seller') {
+    const newSeller = await Seller.create({
+      Username: Username,
+      Phone_number: req.body.phoneNumber,
+      Shop_name: req.body.shopName,
+    });
+  }
   createSendToken(newUser, 201, res);
 });
-
 
 exports.login = catchAsync(async (req, res, next) => {
   const { Email, Password } = req.body;
@@ -72,6 +98,11 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (!user || !(await user.correctPassword(Password, user.Password))) {
     return next(new AppError('Incorrect email or password', 401));
+  }
+  if (user.Role == 'Doctor') {
+    if (user.approval == 'false') {
+      return next(new AppError('Wait for approval', 401));
+    }
   }
 
   createSendToken(user, 200, res);
@@ -125,7 +156,7 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ Where: { email: req.body.email } });
+  const user = await User.findOne({ Where: { Email: req.body.Email } });
   if (!user) {
     return next(new AppError('There is no user with this email address.', 404));
   }
@@ -133,13 +164,13 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   const resetToken = user.generatePasswordToken();
   await user.save();
 
-  const resetURL = `${req.protocol}://${req.get('host')}/GreenThumb/v1/users/resetPassword/${resetToken}`;
+  const resetURL = `${req.protocol}://${req.get('host')}/GP/v1/users/resetPassword/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordconfirm to: ${resetURL}.`;
 
   try {
     await sendEmail({
-      email: req.body.email,
+      Email: req.body.Email,
       subject: 'Your password reset token (valid for 10 min)',
       message,
     });
@@ -199,6 +230,18 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.passwordconfirm = passwordconfirm;
   await user.save();
 
+  createSendToken(user, 200, res);
+});
+exports.changePassword = catchAsync(async (req, res, next) => {
+  const { password, email } = req.body;
+  console.log(req.body);
+  const user = await User.update(
+    { Password: password },
+    {
+      where: { Email: email },
+    },
+  );
+  console.log(user);
   createSendToken(user, 200, res);
 });
 

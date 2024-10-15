@@ -21,3 +21,4 @@ const Student = sequelize.define(
     indexes: [{ unique: true, fields: ['Username'] }],
   },
 );
+module.exports = { Student };

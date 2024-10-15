@@ -7,6 +7,7 @@ const studentRouter = require('./routes/studentRouter');
 const itemsRouter = require('./routes/itemsRouter');
 const doctorRouter = require('./routes/doctorRouter');
 const associations = require('./db_associations/associations');
+const projectsRouter = require('./routes/projectsRouter');
 
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -21,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 app.use(cookieParser());
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '50mb' }));
 
 const limiter = rateLimit({
   max: 100,
@@ -35,6 +36,7 @@ app.use('/GP/v1/seller', sellerRouter);
 app.use('/GP/v1/student', studentRouter);
 app.use('/GP/v1/doctor', doctorRouter);
 app.use('/GP/v1/seller/items', itemsRouter);
+app.use('/GP/v1/projects', projectsRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

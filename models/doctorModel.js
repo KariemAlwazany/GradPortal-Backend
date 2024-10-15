@@ -13,7 +13,7 @@ const Doctor = sequelize.define(
       allowNull: false,
     },
     Degree: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT('long'),
       allowNull: true,
     },
     Role: {
@@ -25,3 +25,4 @@ const Doctor = sequelize.define(
     indexes: [{ unique: true, fields: ['Username'] }],
   },
 );
+module.exports = { Doctor };
