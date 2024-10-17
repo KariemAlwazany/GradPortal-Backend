@@ -222,12 +222,12 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
   const user = await User.findByPk(req.user.id);
 
-  if (!(await user.correctPassword(passwordcurrent, user.password))) {
+  if (!(await user.correctPassword(passwordcurrent, user.Password))) {
     return next(new AppError('Your current password is wrong.', 401));
   }
 
-  user.password = password;
-  user.passwordconfirm = passwordconfirm;
+  user.Password = password;
+  user.Passwordconfirm = passwordconfirm;
   await user.save();
 
   createSendToken(user, 200, res);
