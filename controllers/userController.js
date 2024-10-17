@@ -33,7 +33,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
       id: req.user.id,
     },
   });
-
+  console.log(doc);
   if (!doc) {
     return next(new AppError('No document found with that ID', 404));
   }
