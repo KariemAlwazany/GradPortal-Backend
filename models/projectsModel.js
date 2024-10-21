@@ -20,7 +20,6 @@ const Projects = sequelize.define('Graduation_Projects', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-
   Supervisor_2: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -34,7 +33,7 @@ const Projects = sequelize.define('Graduation_Projects', {
     allowNull: false,
   },
   GP_Description: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   done: {
@@ -42,4 +41,5 @@ const Projects = sequelize.define('Graduation_Projects', {
     allowNull: false,
   },
 });
+
 module.exports = { Projects };
