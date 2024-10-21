@@ -13,8 +13,13 @@ const Student = sequelize.define(
       allowNull: false,
     },
     Degree: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT('long'),
       allowNull: true,
+    },
+    Status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'start',
     },
   },
   {

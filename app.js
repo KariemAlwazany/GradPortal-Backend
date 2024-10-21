@@ -8,6 +8,7 @@ const studentRouter = require('./routes/studentRouter');
 const doctorRouter = require('./routes/doctorRouter');
 const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
+const favProjectsRouter = require('./routes/favProjectsRouter');
 
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -33,9 +34,10 @@ const limiter = rateLimit({
 app.use('/GP', limiter);
 app.use('/GP/v1/users', userRouter);
 app.use('/GP/v1/seller', sellerRouter);
-app.use('/GP/v1/student', studentRouter);
+app.use('/GP/v1/students', studentRouter);
 app.use('/GP/v1/doctor', doctorRouter);
 app.use('/GP/v1/projects', projectsRouter);
+app.use('/GP/v1/projects/favorites', favProjectsRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
