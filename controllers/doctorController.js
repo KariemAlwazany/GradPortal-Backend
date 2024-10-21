@@ -1,2 +1,2 @@
 const db = require('./../models/doctorModel');
-const doctor = db.Doctor;
+const Doctor = db.Doctor;
