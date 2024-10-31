@@ -43,7 +43,7 @@ const ShoppingCart = sequelize.define('ShoppingCart', {
     defaultValue: false,
   },
   Picture: {
-    type: DataTypes.STRING,  // Store the picture URL or path
+    type: DataTypes.BLOB('long'),  // Store the picture URL or path
     allowNull: true,
   },
 }, {

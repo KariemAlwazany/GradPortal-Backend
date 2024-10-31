@@ -15,7 +15,7 @@ const Sellers = sequelize.define(
     },
     Shop_name: {
       type: DataTypes.STRING,
-      allowNull: false,  // 'Shop_name' cannot be null
+      allowNull: true,  // 'Shop_name' cannot be null
       unique: true,      // Make 'Shop_name' unique
     },
   },
