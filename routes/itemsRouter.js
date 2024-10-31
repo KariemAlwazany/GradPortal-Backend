@@ -20,7 +20,7 @@ router.route('/deleteitems/:id')
 // router.route('/getName/:Username')
 //   .get(itemsController.getitemsByName);
 
-router.post('items', itemsController.addItems);
+router.post('items', itemsController.addItem);
 
 module.exports = router;
 

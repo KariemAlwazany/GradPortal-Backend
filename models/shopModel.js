@@ -26,11 +26,11 @@ const Shop = sequelize.define(
     },
     longitude: {
       type: DataTypes.FLOAT,  // Storing longitude as a float (decimal values)
-      allowNull: false,
+      allowNull: true,
     },
     latitude: {
       type: DataTypes.FLOAT,  // Storing latitude as a float (decimal values)
-      allowNull: false,
+      allowNull: true,
     },
   },
   {
