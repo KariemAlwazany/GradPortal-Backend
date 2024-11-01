@@ -4,6 +4,8 @@ const AppError = require('./utils/appError');
 const userRouter = require('./routes/userRouter');
 const sellerRouter = require('./routes/sellerRouter');
 const studentRouter = require('./routes/studentRouter');
+const waitingRouter = require('./routes/waitingRouter');
+const waitingPartnerRouter = require('./routes/waitingPartnerRouter');
 
 const doctorRouter = require('./routes/doctorRouter');
 const associations = require('./db_associations/associations');
@@ -35,9 +37,11 @@ app.use('/GP', limiter);
 app.use('/GP/v1/users', userRouter);
 app.use('/GP/v1/seller', sellerRouter);
 app.use('/GP/v1/students', studentRouter);
-app.use('/GP/v1/doctor', doctorRouter);
+app.use('/GP/v1/doctors', doctorRouter);
 app.use('/GP/v1/projects', projectsRouter);
 app.use('/GP/v1/projects/favorites', favProjectsRouter);
+app.use('/GP/v1/projects/WaitingList', waitingRouter);
+app.use('/GP/v1/WaitingPartnerList', waitingPartnerRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
