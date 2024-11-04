@@ -12,6 +12,7 @@ const adminRouter = require('./routes/adminRouter');
 const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
 const favProjectsRouter = require('./routes/favProjectsRouter');
+const meetingsRouter = require('./routes/meetingsRouter');
 
 const globalErrorHandler = require('./controllers/errorController');
 
@@ -44,6 +45,7 @@ app.use('/GP/v1/projects/favorites', favProjectsRouter);
 app.use('/GP/v1/projects/WaitingList', waitingRouter);
 app.use('/GP/v1/WaitingPartnerList', waitingPartnerRouter);
 app.use('/GP/v1/admin', adminRouter);
+app.use('/GP/v1/meetings', meetingsRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

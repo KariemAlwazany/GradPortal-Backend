@@ -6,6 +6,7 @@ const db3 = require('./../models/userModel');
 const db4 = require('./../models/doctorModel');
 const db5 = require('./../models/reservationModel');
 const db6 = require('./../models/waitingPartnerModel');
+const db7 = require('./../models/projectsModel');
 const { Sequelize } = require('sequelize');
 const Student = db2.Student;
 const User = db3.User;
@@ -13,7 +14,8 @@ const WaitingList = db.WaitingList;
 const Doctor = db4.Doctor;
 const Reservation = db5.Reservation;
 const WaitingPartner = db6.WaitingPartner;
-addToWaiting = catchAsync(async (req, res, next) => {
+const Projects = db7.Projects;
+const addToWaiting = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
 
   const user = await User.findOne({ where: { id: userID } });
@@ -441,11 +443,40 @@ approveProject = catchAsync(async (req, res, next) => {
       { Status: 'approved' },
       { where: { Username: studentUser } },
     );
-
+    const partner = await WaitingPartner.findOne({
+      where: { Partner_1: studentUser, PartnerStatus: 'approved' },
+    });
+    const findWaitingList = await WaitingList.findOne({
+      where: {
+        Partner_1: studentUser,
+        Doctor1: doctor.Username,
+        DoctorStatus: 'approved',
+      },
+    });
+    const findWaitingList2 = await WaitingList.findOne({
+      where: {
+        Partner_1: partner.Partner_2,
+        DoctorStatus: 'approved',
+      },
+    });
+    const Supervisor_2 = null;
+    if (findWaitingList2.Doctor1 != findWaitingList.Doctor1) {
+      Supervisor_2 = findWaitingList2.Doctor1;
+    }
+    const addToProjects = await Projects.create({
+      Student_1: partner.Partner_1,
+      Student_2: partner.Partner_2,
+      Supervisor_1: findWaitingList.Doctor1,
+      Supervisor_2: Supervisor_2,
+      GP_Type: findWaitingList.ProjectTitle,
+      GP_Description: findWaitingList.ProjectDescription,
+      GP_Title: findWaitingList.ProjectType,
+      done: 'no',
+    });
     res.status(200).json({
       status: 'success',
       data: {
-        waitingList,
+        addToProjects,
       },
     });
   } catch (error) {
