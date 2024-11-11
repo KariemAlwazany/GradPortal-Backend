@@ -30,6 +30,14 @@ const Meeting = sequelize.define('Meeting', {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  MeetingID: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  RoomStatus: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 });
 
 module.exports = { Meeting };

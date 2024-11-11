@@ -8,7 +8,7 @@ const { Sequelize } = require('sequelize'); // Ensure Sequelize is imported
 const Meeting = db.Meeting;
 const Projects = db1.Projects;
 const User = db2.User;
-const getMyMeetings = catchAsync(async (req, res, next) => {
+const getWaitingListMeeting = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
   const user = await User.findOne({ where: { id: userId } });
   const username = user.Username;
@@ -73,9 +73,88 @@ const decline = catchAsync(async (req, res, next) => {
     },
   });
 });
+const getMyMeetings = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const user = await User.findOne({ where: { id: userId } });
+  const username = user.Username;
+  const meetings = await Meeting.findAll({
+    where: { Doctor: username, Status: 'Approved', RoomStatus: null },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      meetings,
+    },
+  });
+});
+const addMeetingID = catchAsync(async (req, res, next) => {
+  const id = req.body.id;
+  const meetingID = req.body.MeetingID;
+  console.log(req.body); //RoomStatus
+  const meetings = await Meeting.update(
+    { MeetingID: meetingID, RoomStatus: 'Live' },
+    {
+      where: { id: id },
+    },
+  );
+  res.status(200).json({
+    status: 'success',
+    data: {
+      meetings,
+    },
+  });
+});
+
+const getStudentMeetings = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const user = await User.findOne({ where: { id: userId } });
+  const username = user.Username;
+
+  const meetings = await Meeting.findAll({
+    where: {
+      [Sequelize.Op.and]: [
+        {
+          [Sequelize.Op.or]: [{ Student_1: username }, { Student_2: username }],
+        },
+
+        ,
+        { Status: 'Approved' },
+        { RoomStatus: 'Live' },
+      ],
+    },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      meetings,
+    },
+  });
+});
+const endMeeting = catchAsync(async (req, res, next) => {
+  const id = req.body.id;
+  console.log(req.body);
+  const meetings = await Meeting.update(
+    { RoomStatus: 'End' },
+    {
+      where: { id: id },
+    },
+  );
+  res.status(200).json({
+    status: 'success',
+    data: {
+      meetings,
+    },
+  });
+});
+
 module.exports = {
+  getWaitingListMeeting,
   getMyMeetings,
   studentCreateMeeting,
   approve,
   decline,
+  addMeetingID,
+  getStudentMeetings,
+  endMeeting,
 };
