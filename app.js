@@ -9,7 +9,7 @@ const waitingPartnerRouter = require('./routes/waitingPartnerRouter');
 
 const doctorRouter = require('./routes/doctorRouter');
 const deadlineRouter = require('./routes/deadlineRouter');
-
+const submitRouter = require('./routes/submitRouter');
 const adminRouter = require('./routes/adminRouter');
 const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
@@ -49,6 +49,7 @@ app.use('/GP/v1/WaitingPartnerList', waitingPartnerRouter);
 app.use('/GP/v1/admin', adminRouter);
 app.use('/GP/v1/meetings', meetingsRouter);
 app.use('/GP/v1/deadlines', deadlineRouter);
+app.use('/GP/v1/submit', submitRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

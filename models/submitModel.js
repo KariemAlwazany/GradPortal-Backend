@@ -1,22 +1,22 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
 
-const Deadline = sequelize.define('Deadline', {
+const Submit = sequelize.define('Submit', {
   Doctor: {
     type: DataTypes.STRING,
     allowNull: false,
   },
   Date: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  Student: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
-  File: {
-    type: DataTypes.TEXT('long'),
-    allowNull: true,
-  },
-  Description: {
+  TaskID: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
   Title: {
     type: DataTypes.STRING,
@@ -27,4 +27,4 @@ const Deadline = sequelize.define('Deadline', {
     allowNull: true,
   },
 });
-module.exports = { Deadline };
+module.exports = { Submit };

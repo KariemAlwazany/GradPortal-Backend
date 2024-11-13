@@ -9,6 +9,7 @@ getDoctorDeadlines = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
   const user = await User.findOne({ where: { id: userID } });
   const username = user.Username;
+
   const deadLines = await Deadline.findAll({
     where: {
       Doctor: username,
@@ -25,12 +26,20 @@ getDoctorDeadlines = catchAsync(async (req, res, next) => {
 getStudentDeadlines = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
   const user = await User.findOne({ where: { id: userID } });
+  console.log(user.Username);
   const username = user.Username;
-  const doctor = Reservation.findOne({ where: { Student: username } });
+
+  const doctor = await Reservation.findOne({ where: { Student: username } });
 
   const deadLines = await Deadline.findAll({
     where: {
-      Doctor: doctor.Username,
+      Doctor: doctor.Doctor,
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      deadLines,
     },
   });
 });
@@ -92,6 +101,7 @@ deleteDeadline = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 module.exports = {
   getDoctorDeadlines,
   getStudentDeadlines,
