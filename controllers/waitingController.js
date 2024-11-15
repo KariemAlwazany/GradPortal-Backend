@@ -527,6 +527,38 @@ checkPartner = catchAsync(async (req, res, next) => {
   const waitingList = await WaitingList.findOne({});
 });
 
+getThreeDoctors = catchAsync(async (req, res, next) => {
+  const getThree = await WaitingList.findAll({
+    where: {
+      Doctor2: { [Sequelize.Op.ne]: null },
+      Doctor3: { [Sequelize.Op.ne]: null },
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: { getThree },
+  });
+});
+acceptOneOfThree = catchAsync(async (req, res, next) => {
+  const { student, Doctor } = req.body;
+  const findList = await WaitingList.update(
+    { Doctor1: Doctor, Doctor2: null, Doctor3: null, DoctorStatus: 'approved' },
+    { where: { Partner_1: student } },
+  );
+  const reservation = await Reservation.create({
+    Student: student,
+    Doctor: Doctor,
+  });
+  const updateStudent = await Student.update(
+    { Status: 'completed' },
+    { where: { Username: student } },
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: { reservation },
+  });
+});
 module.exports = {
   addToWaiting,
   updateWaiting,
@@ -539,4 +571,6 @@ module.exports = {
   getProjectsCount,
   approveProject,
   declineProject,
+  getThreeDoctors,
+  acceptOneOfThree,
 };

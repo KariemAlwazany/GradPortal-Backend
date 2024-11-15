@@ -32,6 +32,7 @@ const studentCreateMeeting = catchAsync(async (req, res, next) => {
     where: {
       [Sequelize.Op.or]: [{ Student_1: username }, { Student_2: username }],
     },
+    done: 'no',
   });
 
   const meeting = await Meeting.create({

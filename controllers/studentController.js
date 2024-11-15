@@ -12,6 +12,11 @@ getCurrentStudent = catchAsync(async (req, res, next) => {
   const student = await Student.findOne({ where: { Username: username } });
   res.status(200).send(student);
 });
+getStudent = catchAsync(async (req, res, next) => {
+  const username = req.params.username;
+  const student = await Student.findOne({ where: { Username: username } });
+  res.status(200).send(student);
+});
 
 getAllStudents = catchAsync(async (req, res, next) => {
   console.log('req.user.id');
@@ -30,4 +35,5 @@ getAllStudents = catchAsync(async (req, res, next) => {
 module.exports = {
   getCurrentStudent,
   getAllStudents,
+  getStudent,
 };

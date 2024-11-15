@@ -15,7 +15,7 @@ const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
 const favProjectsRouter = require('./routes/favProjectsRouter');
 const meetingsRouter = require('./routes/meetingsRouter');
-
+const messagesRouter = require('./routes/messagesRouter');
 const globalErrorHandler = require('./controllers/errorController');
 
 const rateLimit = require('express-rate-limit');
@@ -50,6 +50,7 @@ app.use('/GP/v1/admin', adminRouter);
 app.use('/GP/v1/meetings', meetingsRouter);
 app.use('/GP/v1/deadlines', deadlineRouter);
 app.use('/GP/v1/submit', submitRouter);
+app.use('/GP/v1/messages', messagesRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

@@ -39,6 +39,17 @@ Submit.belongsTo(Projects, {
 Projects.hasMany(Submit, {
   as: 'Submissions',
 });
+// In the Projects model file, add these associations
+Projects.belongsTo(Student, {
+  as: 'Student1',
+  foreignKey: 'Student_1',
+  targetKey: 'Username',
+});
+Projects.belongsTo(Student, {
+  as: 'Student2',
+  foreignKey: 'Student_2',
+  targetKey: 'Username',
+});
 
 // Export the models with associations
 module.exports = {
