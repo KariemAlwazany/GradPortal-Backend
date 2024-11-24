@@ -12,5 +12,14 @@ router.get('/myMeetings', meetingController.getMyMeetings);
 router.patch('/addID', meetingController.addMeetingID);
 router.patch('/endMeeting', meetingController.endMeeting);
 router.get('/students/myMeetings', meetingController.getStudentMeetings);
+router.post('/createMeeting', meetingController.doctorCreateMeeting);
+router.post(
+  '/createMeetingForGroup',
+  meetingController.doctorCreateMeetingForGroup,
+);
+router.patch('/editDate', meetingController.editMeeting);
+router.delete('/deleteMeeting', meetingController.cancleMeeting);
+router.get('/upcoming', meetingController.getCountUpCommingMeetings);
+router.get('/completed', meetingController.getCountCompletedMeetings);
 
 module.exports = router;

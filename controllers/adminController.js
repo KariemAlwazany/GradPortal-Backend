@@ -93,7 +93,7 @@ const decline = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = {
+getAllDoctors = module.exports = {
   getDoctors,
   getStudents,
   getSellers,

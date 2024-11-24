@@ -4,23 +4,32 @@ const catchAsync = require('./../utils/catchAsync');
 const { Sequelize } = require('sequelize');
 const Student = db.Student;
 const User = db1.User;
-getCurrentStudent = catchAsync(async (req, res, next) => {
-  const userID = req.user.id;
-
-  const user = await User.findOne({ where: { id: userID } });
+const getAll = catchAsync(async (req, res, next) => {
+  const students = await Student.findAll();
+  res.status(200).json({
+    status: 'success',
+    data: {
+      students,
+    },
+  });
+});
+const CurrentStudent = catchAsync(async (req, res, next) => {
+  console.log('************************************************');
+  const userId = req.user.id;
+  const user = await User.findOne({ where: { id: userId } });
   username = user.Username;
   const student = await Student.findOne({ where: { Username: username } });
-  res.status(200).send(student);
+  res.status(201).send(student);
 });
-getStudent = catchAsync(async (req, res, next) => {
+const getStudent = catchAsync(async (req, res, next) => {
   const username = req.params.username;
   const student = await Student.findOne({ where: { Username: username } });
   res.status(200).send(student);
 });
 
-getAllStudents = catchAsync(async (req, res, next) => {
+const getAllStudents = catchAsync(async (req, res, next) => {
   console.log('req.user.id');
-  userId = req.user.id;
+  const userId = req.user.id;
 
   const user = await User.findOne({ where: { id: userId } });
   username = user.Username;
@@ -33,7 +42,8 @@ getAllStudents = catchAsync(async (req, res, next) => {
 });
 
 module.exports = {
-  getCurrentStudent,
+  CurrentStudent,
   getAllStudents,
   getStudent,
+  getAll,
 };
