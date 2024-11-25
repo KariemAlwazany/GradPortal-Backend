@@ -9,7 +9,7 @@ const doctorRouter = require('./routes/doctorRouter');
 const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
 const favProjectsRouter = require('./routes/favProjectsRouter');
-
+const shopRouter = require('./routes/shopRouter');
 const globalErrorHandler = require('./controllers/errorController');
 
 const rateLimit = require('express-rate-limit');
@@ -37,6 +37,7 @@ app.use('/GP/v1/seller', sellerRouter);
 app.use('/GP/v1/students', studentRouter);
 app.use('/GP/v1/doctor', doctorRouter);
 app.use('/GP/v1/seller/items', itemsRouter);
+app.use('/GP/v1/seller/shop', shopRouter);
 app.use('/GP/v1/projects', projectsRouter);
 app.use('/GP/v1/projects/favorites', favProjectsRouter);
 

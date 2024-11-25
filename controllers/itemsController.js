@@ -1,43 +1,56 @@
 const db = require('./../models/itemsModel');
-const Items = db.Items;
+const Items = require('./../models/itemsModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryController');
+const Sellers = require('./../models/sellerModel');
 
 const addItem = async (req, res) => {
     try {
-        // Retrieve item data from the request body
-        const { item_name, Quantity, Price, Description, Type, Available, Shop_name } = req.body;
-        
-        // Retrieve the image from the request file (using Multer)
-        const Picture = req.file ? req.file.buffer : null; // Set buffer for BLOB field or path if using STRING
-        
-        // Ensure the Shop exists
-        const shop = await Sellers.findOne({ where: { Shop_name } });
-        if (!shop) {
-            return res.status(400).json({ message: 'Invalid Shop_name, shop not found' });
-        }
-
-        // Create the item in the database
-        const newItem = await Items.create({
-            item_name,
-            Quantity,
-            Price,
-            Description,
-            Type,
-            Available: Available === 'true', // Convert to boolean if received as string
-            Picture,
-            Shop_name, // Foreign key
-        });
-
-        res.status(201).json({
-            message: 'Item uploaded successfully',
-            item: newItem,
-        });
+      // Log incoming data for debugging
+      console.log("Request Headers:", req.headers);
+      console.log("Request Body:", req.body);
+      console.log("Uploaded File:", req.file);
+  
+      const { item_name, Quantity, Price, Description, Type, Available } = req.body;
+      const { Username } = req.user;
+  
+      // Validate required fields
+      if (!item_name || !Quantity || !Description || !Type || !req.file) {
+        return res.status(400).json({ message: 'All required fields must be provided' });
+      }
+  
+      // Fetch Shop_name
+      const shop = await Sellers.findOne({ where: { Username } });
+      if (!shop || !shop.Shop_name) {
+        return res.status(400).json({ message: 'No shop found for the logged-in user' });
+      }
+  
+      const Shop_name = shop.Shop_name;
+      const Picture = req.file.buffer; // Access file buffer
+  
+      // Create the item
+      const newItem = await Items.create({
+        item_name,
+        Quantity,
+        Price,
+        Description,
+        Type,
+        Available: Available === 'true',
+        Picture,
+        Shop_name,
+        Item_owner: Username,
+      });
+  
+      res.status(201).json({
+        message: 'Item uploaded successfully',
+        item: newItem,
+      });
     } catch (error) {
-        console.error('Error uploading item:', error);
-        res.status(500).json({ message: 'Internal server error' });
+      console.error('Error uploading item:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-};
+  };
+  
 
 
 exports.findAllItems = factory.getAll(Items);

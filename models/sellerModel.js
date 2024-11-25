@@ -4,10 +4,15 @@ const { sequelize } = require('.');
 const Sellers = sequelize.define(
   'Sellers',
   {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true, 
+    },
     Username: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true,  // 'Username' is the primary key
+      unique: true, 
     },
     Phone_number: {
       type: DataTypes.STRING,
@@ -15,13 +20,19 @@ const Sellers = sequelize.define(
     },
     Shop_name: {
       type: DataTypes.STRING,
-      allowNull: true,  // 'Shop_name' cannot be null
-      unique: true,      // Make 'Shop_name' unique
+      allowNull: true,
+      unique: true, 
     },
-  },
-  {
-    // You don't need an additional index for 'Shop_name' because 'unique: true' already creates an index
   },
 );
 
 module.exports = Sellers;
+
+
+
+
+
+
+
+
+

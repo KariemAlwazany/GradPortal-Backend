@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('.'); // Make sure to provide the correct path to your sequelize instance
-const Sellers = require('./sellerModel.js'); // Import the Sellers model
+const { sequelize } = require('.');
+const Sellers = require('./sellerModel.js');
 
 const Shop = sequelize.define(
   'Shop',
@@ -8,41 +8,40 @@ const Shop = sequelize.define(
     shop_name: {
       type: DataTypes.STRING,
       allowNull: false,
-      primaryKey: true,  // shop_name is the primary key
+      primaryKey: true,
     },
     Seller_Username: {
       type: DataTypes.STRING,
       references: {
-        model: Sellers,  // Reference the Sellers model
-        key: 'Username', // Referencing the primary key in the Sellers table
+        model: Sellers,
+        key: 'Username',
       },
-      onUpdate: 'CASCADE', // Update the Shop when the referenced Username in Sellers is updated
-      onDelete: 'SET NULL', // Set Seller_Username to NULL if the referenced seller is deleted
-      allowNull: false, // You can make this nullable if needed, but typically FK is not null
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL', // Allows setting to NULL when the referenced seller is deleted
+      allowNull: true, // MUST allow NULL to support 'SET NULL'
     },
     Telephone: {
       type: DataTypes.STRING,
-      allowNull: true,  // Nullable
+      allowNull: true,
     },
     longitude: {
-      type: DataTypes.FLOAT,  // Storing longitude as a float (decimal values)
+      type: DataTypes.FLOAT,
       allowNull: true,
     },
     latitude: {
-      type: DataTypes.FLOAT,  // Storing latitude as a float (decimal values)
+      type: DataTypes.FLOAT,
       allowNull: true,
     },
   },
   {
-    indexes: [{ unique: true, fields: ['shop_name'] }],  // Ensure shop_name is unique
+    indexes: [{ unique: true, fields: ['shop_name'] }],
   },
 );
 
-// Defining the association
-Shop.associate = function(models) {
+Shop.associate = function (models) {
   Shop.belongsTo(models.Sellers, {
     foreignKey: 'Seller_Username',
-    as: 'seller', // This is the alias for the seller association
+    as: 'seller',
   });
 };
 

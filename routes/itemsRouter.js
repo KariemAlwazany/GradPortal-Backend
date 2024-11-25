@@ -3,9 +3,11 @@ const itemsController = require('./../controllers/itemsController');
 const authController = require('./../controllers/authController');
 
 const router = express.Router();
+const upload = require('./../middleware/multer'); 
+
 
 router.use(authController.protect);
-
+router.post('/additem', upload.single('Picture'), itemsController.addItem);
 router.route('/:id')
   .get(itemsController.getItemsByID);
   
@@ -19,8 +21,6 @@ router.route('/deleteitems/:id')
 
 // router.route('/getName/:Username')
 //   .get(itemsController.getitemsByName);
-
-router.post('items', itemsController.addItem);
 
 module.exports = router;
 
