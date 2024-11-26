@@ -13,7 +13,7 @@ const adminRouter = require('./routes/adminRouter');
 const associations = require('./db_associations/associations');
 const projectsRouter = require('./routes/projectsRouter');
 const favProjectsRouter = require('./routes/favProjectsRouter');
-const shopRouter = require('./routes/shopRouter');const meetingsRouter = require('./routes/meetingsRouter');
+const meetingsRouter = require('./routes/meetingsRouter');
 const messagesRouter = require('./routes/messagesRouter');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
@@ -53,8 +53,7 @@ app.use('/GP', limiter);
 app.use('/GP/v1/users', userRouter);
 app.use('/GP/v1/seller', sellerRouter);
 app.use('/GP/v1/students', studentRouter);
-app.use('/GP/v1/doctor', doctorRouter);
-app.use('/GP/v1/seller/items', itemsRouter);
+app.use('/GP/v1/doctors', doctorRouter);
 app.use('/GP/v1/projects', projectsRouter);
 app.use('/GP/v1/projects/favorites', favProjectsRouter);
 app.use('/GP/v1/projects/WaitingList', waitingRouter);
@@ -64,6 +63,8 @@ app.use('/GP/v1/meetings', meetingsRouter);
 app.use('/GP/v1/deadlines', deadlineRouter);
 app.use('/GP/v1/submit', submitRouter);
 app.use('/GP/v1/messages', messagesRouter);
+app.use('/GP/v1/seller/items', itemsRouter);
+app.use('/GP/v1/seller/shop', shopRouter);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {

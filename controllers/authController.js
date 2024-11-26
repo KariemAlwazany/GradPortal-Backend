@@ -13,7 +13,7 @@ const { Op } = require('sequelize');
 const User = db.User;
 const Student = db1.Student;
 const Doctor = db2.Doctor;
-const Seller = db3.Seller;
+const Seller = db3;
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -81,6 +81,8 @@ exports.signup = catchAsync(async (req, res, next) => {
       Phone_number: req.body.phoneNumber,
       Shop_name: req.body.shopName,
     });
+    console.log(req.body);
+
   }
   createSendToken(newUser, 201, res);
 });
