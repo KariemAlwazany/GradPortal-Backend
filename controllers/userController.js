@@ -12,7 +12,34 @@ const filterObj = (obj, ...allowedFields) => {
   });
   return newObj;
 };
-
+exports.getDoctors = catchAsync(async (req, res, next) => {
+  const doctors = await User.findAll({
+    where: {
+      Role: 'Doctor',
+      approval: 'true',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      doctors,
+    },
+  });
+});
+exports.getHeadDoctor = catchAsync(async (req, res, next) => {
+  const doctors = await User.findOne({
+    where: {
+      Role: 'Head',
+      approval: 'true',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      doctors,
+    },
+  });
+});
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
@@ -58,6 +85,77 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.changeHeadDoctor = catchAsync(async (req, res, next) => {
+  const { currentHead, newHead } = req.body;
+  const doctor = await User.update(
+    { Role: 'Doctor' },
+    { where: { id: currentHead } },
+  );
+  const doctor1 = await User.update(
+    { Role: 'Head' },
+    { where: { id: newHead } },
+  );
+  res.status(200).json({
+    status: 'success',
+    message: 'Head Doctor Changed',
+  });
+});
+exports.getDoctorsCount = catchAsync(async (req, res, next) => {
+  const count = await User.count({
+    where: {
+      Role: 'Doctor',
+      approval: 'true',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      count,
+    },
+  });
+});
+exports.getStudentsCount = catchAsync(async (req, res, next) => {
+  const count = await User.count({
+    where: {
+      Role: 'Student',
+      approval: 'true',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      count,
+    },
+  });
+});
+exports.getSellersCount = catchAsync(async (req, res, next) => {
+  const count = await User.count({
+    where: {
+      Role: 'Seller',
+      approval: 'true',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      count,
+    },
+  });
+});
+exports.getNormalUserCount = catchAsync(async (req, res, next) => {
+  const count = await User.count({
+    where: {
+      Role: 'User',
+      approval: 'true',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      count,
+    },
+  });
+});
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);

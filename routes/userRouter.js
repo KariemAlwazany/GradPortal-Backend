@@ -18,6 +18,13 @@ router.delete('/deleteMe', userController.deleteMe);
 
 // router.use(authController.restrictTo('admin'));
 router.get('/', userController.getAllUsers);
+router.get('/doctors', userController.getDoctors);
+router.get('/doctors/count', userController.getDoctorsCount);
+router.get('/students/count', userController.getStudentsCount);
+router.get('/sellers/count', userController.getSellersCount);
+router.get('/normal/count', userController.getNormalUserCount);
+router.get('/headdoctor', userController.getHeadDoctor);
+router.patch('/change-head', userController.changeHeadDoctor);
 router.get('/:id', userController.getUser);
 router.patch('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
