@@ -1,5 +1,5 @@
 const { User } = require('../models/userModel');
-const { Seller } = require('../models/sellerModel');
+const Sellers = require('../models/sellerModel');
 const { FavProjects } = require('../models/favProjectsModel');
 const { Projects } = require('../models/projectsModel');
 const { WaitingList } = require('../models/waitingModel');
@@ -28,8 +28,8 @@ User.hasOne(Student, { foreignKey: 'Username', sourceKey: 'Username' });
 
 Doctor.belongsTo(User, { foreignKey: 'Username', targetKey: 'Username' });
 User.hasOne(Doctor, { foreignKey: 'Username', sourceKey: 'Username' });
-Seller.belongsTo(User, { foreignKey: 'Username', targetKey: 'Username' });
-User.hasOne(Seller, { foreignKey: 'Username', sourceKey: 'Username' });
+Sellers.belongsTo(User, { foreignKey: 'Username', targetKey: 'Username' });
+User.hasOne(Sellers, { foreignKey: 'Username', sourceKey: 'Username' });
 
 // Define a loose association between Submit and Projects without enforcing a foreign key constraint
 Submit.belongsTo(Projects, {
@@ -59,5 +59,5 @@ module.exports = {
   Student,
   Submit,
   Doctor,
-  Seller,
+  Sellers,
 };
