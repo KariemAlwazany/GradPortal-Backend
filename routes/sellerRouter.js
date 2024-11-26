@@ -1,24 +1,23 @@
 const express = require('express');
 const sellerController = require('./../controllers/sellerController');
 const authController = require('./../controllers/authController');
+const { use } = require('./itemsRouter');
 
 const router = express.Router();
 
 router.use(authController.protect);
 
-router.route('/:id')
-  .get(sellerController.getSellerByID);
   
 router.get('/getAllSellers', sellerController.findAllSellers);
 
-router.route('/updateSeller/:id')
-    .patch(sellerController.updateSeller);
+
+router.patch('/updateSeller', sellerController.updateSellerAndUser);
     
 router.route('/deleteSeller/:id')
     .delete(sellerController.deleteSeller);
 
-router.route('/getName/:Username')
-  .get(sellerController.getSellerByName);
+router.get('/profile', sellerController.getCurrentSeller);
+router.get('/role', sellerController.getAllSellerData);
 
 module.exports = router;
 

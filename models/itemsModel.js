@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
-const Sellers = require('./sellerModel.js');  // Make sure to use the correct path to your Shop model
+const Sellers = require('./sellerModel.js');
 
 const Items = sequelize.define(
   'Items',

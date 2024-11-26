@@ -63,6 +63,8 @@ app.use('/GP/v1/meetings', meetingsRouter);
 app.use('/GP/v1/deadlines', deadlineRouter);
 app.use('/GP/v1/submit', submitRouter);
 app.use('/GP/v1/messages', messagesRouter);
+app.use('/GP/v1/seller/items', itemsRouter);
+app.use('/GP/v1/seller/shop', shopRouter);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {
