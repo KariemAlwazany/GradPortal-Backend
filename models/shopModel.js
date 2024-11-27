@@ -17,12 +17,8 @@ const Shop = sequelize.define(
         key: 'Username',
       },
       onUpdate: 'CASCADE',
-      onDelete: 'SET NULL', // Allows setting to NULL when the referenced seller is deleted
-      allowNull: true, // MUST allow NULL to support 'SET NULL'
-    },
-    Telephone: {
-      type: DataTypes.STRING,
-      allowNull: true,
+      onDelete: 'SET NULL',
+      allowNull: true, 
     },
     longitude: {
       type: DataTypes.FLOAT,

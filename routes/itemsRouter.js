@@ -8,16 +8,14 @@ const upload = require('./../middleware/multer');
 
 router.use(authController.protect);
 router.post('/additem', upload.single('Picture'), itemsController.addItem);
-router.route('/:id')
-  .get(itemsController.getItemsByID);
   
-router.get('/getAllitems', itemsController.findAllItems);
+router.get('/getSelleritems', itemsController.getItemsForSeller);
 
-router.route('/updateitems/:id')
-    .patch(itemsController.updateItems);
+// router.route('/updateitems/:id')
+//     .patch(itemsController.updateItems);
     
-router.route('/deleteitems/:id')
-    .delete(itemsController.deleteItems);
+// router.route('/deleteitems/:id')
+//     .delete(itemsController.deleteItems);
 
 // router.route('/getName/:Username')
 //   .get(itemsController.getitemsByName);
