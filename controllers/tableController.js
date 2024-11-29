@@ -21,81 +21,114 @@ const createTable = catchAsync(async (req, res, next) => {
   const allSupervisors = [
     ...new Set(projects.map((project) => project.Supervisor_1)),
   ]; // Unique list of supervisors
-  const startTime = new Date(StartDate);
-  const endTime = new Date(EndDate);
 
-  let currentTime = new Date(startTime);
+  const startDateTime = new Date(StartDate);
+  const endDateTime = new Date(EndDate);
+
+  const startTime = new Date(
+    startDateTime.setHours(startDateTime.getHours() + 2),
+  );
+  const endTime = new Date(endDateTime.setHours(endDateTime.getHours() + 2));
+
+  // Calculate the number of days
+  const days = Math.ceil((endDateTime - startDateTime) / (1000 * 60 * 60 * 24));
+
+  const dailyStartTime = new Date(
+    startDateTime.setHours(startTime.getHours(), startTime.getMinutes(), 0, 0),
+  );
+  const dailyEndTime = new Date(
+    endDateTime.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0),
+  );
+
+  const totalProjects = projects.length;
+  const projectsPerDay = Math.ceil(totalProjects / days);
   const sessionDuration = 25; // 20 minutes discussion + 5 minutes break
   const discussionsPerSession = 4; // 4 discussions at the same time
 
   let unscheduledProjects = [...projects];
   let scheduledProjects = [];
+  let currentDayStart = new Date(dailyStartTime);
 
-  while (unscheduledProjects.length > 0 && currentTime <= endTime) {
-    let sessionProjects = unscheduledProjects.slice(0, discussionsPerSession); // Take up to 4 projects
-    unscheduledProjects = unscheduledProjects.slice(discussionsPerSession); // Remove selected projects
+  for (let day = 0; day < days; day++) {
+    let currentDayEnd = new Date(currentDayStart);
+    currentDayEnd.setHours(dailyEndTime.getHours());
+    currentDayEnd.setMinutes(dailyEndTime.getMinutes());
 
-    const usedSupervisors = new Set();
-    const usedRooms = new Set();
-    let discussions = [];
+    let currentTime = new Date(currentDayStart);
+    const dayProjects = unscheduledProjects.splice(0, projectsPerDay);
 
-    for (const project of sessionProjects) {
-      const availableSupervisors = allSupervisors.filter(
-        (sup) => sup !== project.Supervisor_1 && !usedSupervisors.has(sup),
-      );
+    while (dayProjects.length > 0 && currentTime <= currentDayEnd) {
+      const sessionProjects = dayProjects.splice(0, discussionsPerSession);
+      const usedSupervisors = new Set();
+      const usedRooms = new Set();
+      let discussions = [];
 
-      if (availableSupervisors.length >= 2) {
-        const [examiner1, examiner2] = availableSupervisors;
-
-        // Find an available room
-        const room = rooms.find((r) => !usedRooms.has(r.Room));
-        if (!room) {
-          // If no room is available, skip this project
-          unscheduledProjects.push(project);
+      for (const project of sessionProjects) {
+        if (usedSupervisors.has(project.Supervisor_1)) {
+          dayProjects.push(project);
           continue;
         }
 
-        // Schedule discussion
-        discussions.push({
-          Supervisor_1: project.Supervisor_1,
-          Supervisor_2: project.Supervisor_2,
-          Examiner_1: examiner1,
-          Examiner_2: examiner2,
-          Student_1: project.Student_1,
-          Student_2: project.Student_2,
-          GP_Type: project.GP_Type,
-          GP_Title: project.GP_Title,
-          Time: new Date(currentTime),
-          Room: room.Room,
-        });
+        const availableSupervisors = allSupervisors.filter(
+          (sup) => sup !== project.Supervisor_1 && !usedSupervisors.has(sup),
+        );
 
-        // Mark supervisors, examiners, and room as used
-        usedSupervisors.add(project.Supervisor_1);
-        usedSupervisors.add(examiner1);
-        usedSupervisors.add(examiner2);
-        usedRooms.add(room.Room);
-      } else {
-        // Re-add the project to the unscheduled list for later sessions
-        unscheduledProjects.push(project);
+        if (availableSupervisors.length >= 2) {
+          const [examiner1, examiner2] = availableSupervisors;
+
+          // Find an available room
+          const room = rooms.find((r) => !usedRooms.has(r.Room));
+          if (!room) {
+            dayProjects.push(project);
+            continue;
+          }
+
+          // Schedule discussion
+          discussions.push({
+            Supervisor_1: project.Supervisor_1,
+            Supervisor_2: project.Supervisor_2,
+            Examiner_1: examiner1,
+            Examiner_2: examiner2,
+            Student_1: project.Student_1,
+            Student_2: project.Student_2,
+            GP_Type: project.GP_Type,
+            GP_Title: project.GP_Title,
+            Time: new Date(currentTime),
+            Room: room.Room,
+          });
+
+          // Mark supervisors, examiners, and room as used
+          usedSupervisors.add(project.Supervisor_1);
+          usedSupervisors.add(examiner1);
+          usedSupervisors.add(examiner2);
+          usedRooms.add(room.Room);
+        } else {
+          dayProjects.push(project);
+        }
       }
+
+      // Save scheduled discussions to the database
+      for (const discussion of discussions) {
+        await Table.create(discussion);
+        scheduledProjects.push(discussion);
+      }
+
+      // Increment time for the next session
+      currentTime.setMinutes(currentTime.getMinutes() + sessionDuration);
     }
 
-    // Save scheduled discussions to the database
-    for (const discussion of discussions) {
-      await Table.create(discussion);
-      scheduledProjects.push(discussion);
-    }
-
-    // Increment time for the next session
-    currentTime.setMinutes(currentTime.getMinutes() + sessionDuration);
+    // Move to the next day
+    currentDayStart.setDate(currentDayStart.getDate() + 1);
+    currentDayStart.setHours(dailyStartTime.getHours());
+    currentDayStart.setMinutes(dailyStartTime.getMinutes());
   }
 
-  if (scheduledProjects.length < projects.length) {
+  if (scheduledProjects.length < totalProjects) {
     return res.status(200).json({
       status: 'partial',
       message: 'Some projects could not be scheduled due to conflicts.',
       scheduledCount: scheduledProjects.length,
-      totalProjects: projects.length,
+      totalProjects: totalProjects,
     });
   }
 
@@ -103,7 +136,7 @@ const createTable = catchAsync(async (req, res, next) => {
     status: 'success',
     message: 'Discussion table created successfully!',
     scheduledCount: scheduledProjects.length,
-    totalProjects: projects.length,
+    totalProjects: totalProjects,
     data: scheduledProjects,
   });
 });
