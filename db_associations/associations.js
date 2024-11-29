@@ -1,5 +1,5 @@
 const { User } = require('../models/userModel');
-const  Sellers = require('../models/sellerModel');
+const Sellers = require('../models/sellerModel');
 const { FavProjects } = require('../models/favProjectsModel');
 const { Projects } = require('../models/projectsModel');
 const { WaitingList } = require('../models/waitingModel');
