@@ -35,6 +35,10 @@ const Items = sequelize.define(
       type: DataTypes.BLOB('long'),  // Store the picture URL or path
       allowNull: false,
     },
+    Category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     Shop_name: {
       type: DataTypes.STRING,
       references: {
