@@ -19,7 +19,7 @@ const CurrentStudent = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ where: { id: userId } });
   username = user.Username;
   const student = await Student.findOne({ where: { Username: username } });
-  res.status(201).send(student);
+  res.status(200).send(student);
 });
 const getStudent = catchAsync(async (req, res, next) => {
   const username = req.params.username;

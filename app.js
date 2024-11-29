@@ -19,6 +19,8 @@ const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
 const itemsRouter = require('./routes/itemsRouter');
 const shopRouter = require('./routes/shopRouter');
+const tableRouter = require('./routes/tableRouter');
+const roomRouter = require('./routes/roomRouter');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -67,7 +69,8 @@ app.use('/GP/v1/submit', submitRouter);
 app.use('/GP/v1/messages', messagesRouter);
 app.use('/GP/v1/seller/items', itemsRouter);
 app.use('/GP/v1/seller/shop', shopRouter);
-
+app.use('/GP/v1/table', tableRouter);
+app.use('/GP/v1/room', roomRouter);
 // Handle undefined routes
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
