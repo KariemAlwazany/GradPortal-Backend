@@ -1,16 +1,19 @@
 const db = require('./../models/tableModel');
-const db1 = require('./../models/userModel');
+const db1 = require('./../models/postStatusModel');
 const db2 = require('./../models/testTableModel');
 const db3 = require('./../models/roomModel');
+const db4 = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const { sequelize } = require('./../models'); // Import sequelize correctly from your models/index.js
 
 const Table = db.Table;
-const User = db1.User;
 const Room = db3.Room;
 const Projects = db2.Projects;
+const Status = db1.Status;
+const User = db4.User;
 const { Sequelize } = require('sequelize');
 const createTable = catchAsync(async (req, res, next) => {
+  const destroyStatus = await Status.destroy({ where: {} });
   const { StartDate, EndDate } = req.body;
 
   // Clear existing table
@@ -44,6 +47,8 @@ const createTable = catchAsync(async (req, res, next) => {
   const projectsPerDay = Math.ceil(totalProjects / days);
   const sessionDuration = 25; // 20 minutes discussion + 5 minutes break
   const discussionsPerSession = 4; // 4 discussions at the same time
+  const breakInterval = 70; // 1 hour and 10 minutes
+  const breakDuration = 20; // 20 minutes break
 
   let unscheduledProjects = [...projects];
   let scheduledProjects = [];
@@ -55,6 +60,8 @@ const createTable = catchAsync(async (req, res, next) => {
     currentDayEnd.setMinutes(dailyEndTime.getMinutes());
 
     let currentTime = new Date(currentDayStart);
+    let elapsedMinutes = 0;
+
     const dayProjects = unscheduledProjects.splice(0, projectsPerDay);
 
     while (dayProjects.length > 0 && currentTime <= currentDayEnd) {
@@ -113,8 +120,17 @@ const createTable = catchAsync(async (req, res, next) => {
         scheduledProjects.push(discussion);
       }
 
-      // Increment time for the next session
-      currentTime.setMinutes(currentTime.getMinutes() + sessionDuration);
+      // Increment time for the next session only once per session group
+      if (discussions.length > 0) {
+        currentTime.setMinutes(currentTime.getMinutes() + sessionDuration);
+        elapsedMinutes += sessionDuration;
+      }
+
+      // Handle break
+      if (elapsedMinutes >= breakInterval) {
+        currentTime.setMinutes(currentTime.getMinutes() + breakDuration);
+        elapsedMinutes = 0; // Reset elapsed minutes after a break
+      }
     }
 
     // Move to the next day
@@ -143,12 +159,135 @@ const createTable = catchAsync(async (req, res, next) => {
 
 const getTable = catchAsync(async (req, res, next) => {
   const table = await Table.findAll();
-
+  const checkCurrentUser = await User.findOne({ where: { id: req.user.id } });
+  if (checkCurrentUser.Role == 'Doctor') {
+    const checkStatus = await Status.findOne({ where: { status: 'Doctor' } });
+    if (checkStatus) {
+      res.status(200).json({
+        status: 'success',
+        data: {
+          table,
+        },
+      });
+    } else {
+      res.status(404).json({
+        status: 'fail',
+        message: 'No data',
+      });
+    }
+  } else if (checkCurrentUser.Role == 'Student') {
+    const checkStatus = await Status.findOne({ where: { status: 'Student' } });
+    if (checkStatus) {
+      res.status(200).json({
+        status: 'success',
+        data: {
+          table,
+        },
+      });
+    } else {
+      res.status(404).json({
+        status: 'fail',
+        message: 'No data',
+      });
+    }
+  } else {
+    res.status(200).json({
+      status: 'success',
+      data: {
+        table,
+      },
+    });
+  }
+});
+const updateTable = catchAsync(async (req, res, next) => {
+  console.log(req.body);
+  const id = req.params.id;
+  const updatedTable = await Table.update(req.body, { where: { id: id } });
   res.status(200).json({
     status: 'success',
     data: {
-      table,
+      updatedTable,
     },
   });
 });
-module.exports = { createTable, getTable };
+const postForDoctors = catchAsync(async (req, res, next) => {
+  const createStatus = await Status.create({ status: 'Doctor' });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      createStatus,
+    },
+  });
+});
+const postForStudent = catchAsync(async (req, res, next) => {
+  const createStatus = await Status.create({ status: 'Student' });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      createStatus,
+    },
+  });
+});
+const getTableForStudent = catchAsync(async (req, res, next) => {
+  const userid = req.user.id;
+  const student = await User.findOne({ where: { id: userid } });
+  const username = student.Username;
+
+  const table = await Table.findOne({
+    where: {
+      [Sequelize.Op.or]: [{ Student_1: username }, { Student_2: username }],
+    },
+  });
+  const checkStatus = await Status.findOne({ where: { status: 'Student' } });
+  if (checkStatus) {
+    res.status(200).json({
+      status: 'success',
+      data: {
+        table,
+      },
+    });
+  } else {
+    res.status(404).json({
+      status: 'fail',
+      message: 'No data',
+    });
+  }
+});
+const getTableForDoctor = catchAsync(async (req, res, next) => {
+  const userid = req.user.id;
+  const doctor = await User.findOne({ where: { id: userid } });
+  const username = doctor.Username;
+  const table = await Table.findAll({
+    where: {
+      [Sequelize.Op.or]: [
+        { Supervisor_1: username },
+        { Supervisor_2: username },
+        { Examiner_1: username },
+        { Examiner_2: username },
+      ],
+    },
+  });
+  const checkStatus = await Status.findOne({ where: { status: 'Doctor' } });
+  if (checkStatus) {
+    res.status(200).json({
+      status: 'success',
+      data: {
+        table,
+      },
+    });
+  } else {
+    res.status(404).json({
+      status: 'fail',
+      message: 'No data',
+    });
+  }
+});
+module.exports = {
+  createTable,
+  getTable,
+  updateTable,
+  postForDoctors,
+  postForStudent,
+  getTableForStudent,
+  getTableForDoctor,
+};
