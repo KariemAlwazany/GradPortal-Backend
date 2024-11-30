@@ -1,13 +1,15 @@
 const { User } = require('../models/userModel');
-const  Sellers = require('../models/sellerModel');
+const Sellers = require('../models/sellerModel');
 const { FavProjects } = require('../models/favProjectsModel');
 const { Projects } = require('../models/projectsModel');
 const { WaitingList } = require('../models/waitingModel');
 const { Student } = require('../models/studentModel');
 const { Submit } = require('../models/submitModel');
 const { Doctor } = require('../models/doctorModel');
+const Items = require('../models/itemsModel'); 
+const Shop = require('../models/shopModel'); 
+const Receipt = require('../models/receiptModel');
 
-// Define associations
 FavProjects.belongsTo(Projects, {
   foreignKey: 'GP_ID',
   as: 'graduationProject',
@@ -31,6 +33,17 @@ User.hasOne(Doctor, { foreignKey: 'Username', sourceKey: 'Username' });
 Sellers.belongsTo(User, { foreignKey: 'Username', targetKey: 'Username' });
 User.hasOne(Sellers, { foreignKey: 'Username', sourceKey: 'Username' });
 
+// Add the associations for Items
+Items.belongsTo(Sellers, { foreignKey: 'Shop_name', as: 'shop' });
+Sellers.hasMany(Items, { foreignKey: 'Shop_name', as: 'items' });
+
+Shop.belongsTo(Sellers, { foreignKey: 'Seller_Username', as: 'seller' });
+
+Receipt.belongsTo(Sellers, { foreignKey: 'shop_name', as: 'shop' });
+Receipt.belongsTo(Sellers, { foreignKey: 'Seller_Username', as: 'seller' });
+Receipt.belongsTo(User, { foreignKey: 'buyer_Username', as: 'buyer',});
+
+
 // Define a loose association between Submit and Projects without enforcing a foreign key constraint
 Submit.belongsTo(Projects, {
   as: 'Project', // Alias to reference Projects in joins
@@ -39,6 +52,7 @@ Submit.belongsTo(Projects, {
 Projects.hasMany(Submit, {
   as: 'Submissions',
 });
+
 // In the Projects model file, add these associations
 Projects.belongsTo(Student, {
   as: 'Student1',
@@ -60,4 +74,6 @@ module.exports = {
   Submit,
   Doctor,
   Sellers,
+  Items,  // Export Items model
+  Receipt,
 };

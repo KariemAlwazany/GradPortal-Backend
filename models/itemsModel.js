@@ -5,9 +5,14 @@ const Sellers = require('./sellerModel.js');
 const Items = sequelize.define(
   'Items',
   {
+    Item_ID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,  // Only Item_ID is the primary key
+      autoIncrement: true,  // Auto-increment for Item_ID
+      allowNull: false,
+    },
     item_name: {
       type: DataTypes.STRING,
-      primaryKey: true,
       allowNull: false,
     },
     Quantity: {
@@ -29,7 +34,7 @@ const Items = sequelize.define(
     Available: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
-      defaultValue: false
+      defaultValue: true
     },
     Picture: {
       type: DataTypes.BLOB('long'),  // Store the picture URL or path
@@ -50,17 +55,6 @@ const Items = sequelize.define(
       allowNull: true,
     },
   },
-  {
-    indexes: [{ unique: true, fields: ['item_name'] }],
-  },
-  
 );
-// Defining the relationship
-Items.associate = function(models) {
-  Items.belongsTo(models.Sellers, {
-    foreignKey: 'Shop_name',
-    as: 'shop',
-  });
-};
 
 module.exports = Items;

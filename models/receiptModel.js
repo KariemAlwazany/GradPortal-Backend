@@ -1,10 +1,8 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');  // Reference to the initialized Sequelize instance
-
-// Assuming the Shop, Seller, and User models are defined and imported
-const Shop = require('./shop.model');   // Adjust the path to your Shop model
-const Seller = require('./seller.model');  // Adjust the path to your Seller model
-const User = require('./user.model');   // Adjust the path to your User model
+const Shop = require('../models/shopModel');  // Ensure the Shop model is imported correctly
+const Sellers = require('../models/sellerModel');
+const User = require('../models/userModel');  // Make sure User model is also imported
 
 const Receipt = sequelize.define('Receipt', {
   Receipt_ID: {
@@ -13,15 +11,15 @@ const Receipt = sequelize.define('Receipt', {
     autoIncrement: true,
   },
   // Foreign key to the Shop model
-  shop_name: {
+  ShopName: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: false,  // Keep it non-nullable
     references: {
-      model: 'Shops',  // The table name for your Shop model
-      key: 'name',     // The primary key in the Shop model
+      model: 'Shops',  // Ensure this matches the pluralized table name, which is 'Shops'
+      key: 'shop_name', // The primary key in the Shop model (or use `name` if that's your key)
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE', 
   },
   // Foreign key to the Seller model
   Seller_Username: {
@@ -32,18 +30,18 @@ const Receipt = sequelize.define('Receipt', {
       key: 'username',   // The primary key in the Seller model
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   },
   // Foreign key to the User model for the buyer
   buyer_Username: {
     type: DataTypes.STRING,
     allowNull: false,
     references: {
-      model: 'User',  // The table name for your User model
+      model: 'Users',  // The table name for your User model (make sure 'Users' is the correct table name)
       key: 'username', // Assuming 'username' is the primary key in the User model
     },
     onUpdate: 'CASCADE',
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   },
   itemName: {
     type: DataTypes.STRING,
@@ -67,23 +65,5 @@ const Receipt = sequelize.define('Receipt', {
     defaultValue: DataTypes.NOW,  // Automatically sets the current date
   },
 });
-
-// Define relationships
-Receipt.associate = function(models) {
-  Receipt.belongsTo(models.Seller, {
-    foreignKey: 'shop_name',
-    as: 'shop',
-  });
-  
-  Receipt.belongsTo(models.Seller, {
-    foreignKey: 'Seller_Username',
-    as: 'seller',
-  });
-  
-  Receipt.belongsTo(models.User, {
-    foreignKey: 'buyer_Username',
-    as: 'buyer',
-  });
-};
 
 module.exports = Receipt;
