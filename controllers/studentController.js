@@ -40,10 +40,19 @@ const getAllStudents = catchAsync(async (req, res, next) => {
 
   res.status(200).send(allStudents);
 });
-
+const updateStudent = catchAsync(async (req, res, next) => {
+  const id = req.user.id;
+  const user = await User.findOne({ where: { id: id } });
+  const username = user.Username;
+  const student = await Student.update(req.body, {
+    where: { Username: username },
+  });
+  res.status(200).send(student);
+});
 module.exports = {
   CurrentStudent,
   getAllStudents,
   getStudent,
   getAll,
+  updateStudent,
 };

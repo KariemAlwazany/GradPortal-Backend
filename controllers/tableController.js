@@ -1,10 +1,10 @@
 const db = require('./../models/tableModel');
 const db1 = require('./../models/postStatusModel');
-const db2 = require('./../models/testTableModel');
+const db2 = require('./../models/projectsModel');
 const db3 = require('./../models/roomModel');
 const db4 = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
-const { sequelize } = require('./../models'); // Import sequelize correctly from your models/index.js
+const { sequelize } = require('./../models');
 
 const Table = db.Table;
 const Room = db3.Room;
