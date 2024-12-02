@@ -10,11 +10,11 @@ const upload = multer({
     console.log("File Received in Middleware:", file);
 
     // Validate file type
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/octet-stream'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/octet-stream'];
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true); // Accept the file
     } else {
-      cb(new Error('Invalid file type. Only JPEG, PNG, and JPG are allowed.'));
+      cb(new Error('Invalid file type. Only JPEG, PNG, JPG, and WEBP are allowed.'));
     }
   },
   limits: {

@@ -10,6 +10,10 @@ router.use(authController.protect);
 router.post('/additem', upload.single('Picture'), itemsController.addItem);
   
 router.get('/getSelleritems', itemsController.getItemsForSeller);
+router.get('/getSellerItemsByCategory', itemsController.getSellerItemsByCategory);
+router.get('/getItemsByCategory', itemsController.getItemsByCategory)
+router.get('/getAllItems', itemsController.getAllItems);
+router.patch('/updateItem/:item_id', itemsController.updateItem);
 
 // router.route('/updateitems/:id')
 //     .patch(itemsController.updateItems);

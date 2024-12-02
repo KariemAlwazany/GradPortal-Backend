@@ -34,11 +34,4 @@ const Shop = sequelize.define(
   },
 );
 
-Shop.associate = function (models) {
-  Shop.belongsTo(models.Sellers, {
-    foreignKey: 'Seller_Username',
-    as: 'seller',
-  });
-};
-
 module.exports = Shop;
