@@ -14,6 +14,8 @@ router.get('/getSellerItemsByCategory', itemsController.getSellerItemsByCategory
 router.get('/getItemsByCategory', itemsController.getItemsByCategory)
 router.get('/getAllItems', itemsController.getAllItems);
 router.patch('/updateItem/:item_id', itemsController.updateItem);
+router.get('/searchItems', itemsController.searchItems);
+router.get('/searchItemsForSeller', itemsController.searchItemsForSeller);
 
 // router.route('/updateitems/:id')
 //     .patch(itemsController.updateItems);
