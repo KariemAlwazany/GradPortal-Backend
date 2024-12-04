@@ -7,6 +7,7 @@ const Users = require('./../models/userModel');
 const jwt = require('jsonwebtoken'); // You need this to decode the JWT token
 const db1 = require('./../models/userModel');
 const User = db1.User;
+const { Sequelize, Op } = require('sequelize'); // Import Sequelize and Op (operators) from sequelize
 
 
 
@@ -248,6 +249,104 @@ const updateItem = async (req, res) => {
   }
 };
 
+
+
+
+
+const searchItems = async (req, res) => {
+  try {
+    const searchQuery = req.query.item_name; // Get search query from the query parameters
+
+    if (!searchQuery) {
+      return res.status(400).json({ message: 'Search query cannot be empty' });
+    }
+
+    // Perform the search query using Sequelize
+    const items = await Items.findAll({
+      where: {
+        item_name: {
+          [Sequelize.Op.like]: `%${searchQuery}%`, // Use LIKE operator for searching
+        },
+      },
+    });
+
+    if (items.length === 0) {
+      return res.status(404).json({ message: 'No items found' });
+    }
+
+    // Convert BLOB to Base64 string for Picture
+    const itemsWithBase64Images = items.map(item => {
+      let pictureBase64 = '';
+      if (item.Picture) {
+        pictureBase64 = item.Picture.toString('base64'); // Convert BLOB to Base64
+      }
+
+      return {
+        ...item.toJSON(),  // Convert Sequelize instance to JSON
+        Picture: pictureBase64, // Add Base64 encoded image
+      };
+    });
+
+    res.status(200).json({ items: itemsWithBase64Images });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+
+const searchItemsForSeller = catchAsync(async (req, res, next) => {
+  const userID = req.user.id; // Get user ID from JWT token (decoded)
+  const user = await User.findOne({ where: { id: userID } });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const username = user.Username;
+  const seller = await Sellers.findOne({ where: { Username: username } });
+  if (!seller) {
+    return res.status(404).json({ message: 'Seller not found' });
+  }
+
+  const { Shop_name } = seller;
+  const searchQuery = req.query.item_name; // Get search query from the query parameters
+
+  if (!searchQuery) {
+    return res.status(400).json({ message: 'Search query cannot be empty' });
+  }
+
+  // Perform the search query using Sequelize, limited to items for this seller
+  const items = await Items.findAll({
+    where: {
+      shop_name: Shop_name,
+      item_name: {
+        [Sequelize.Op.like]: `%${searchQuery}%`, // Use LIKE operator for searching
+      },
+    },
+  });
+
+  if (items.length === 0) {
+    return res.status(404).json({ message: 'No items found for the given search' });
+  }
+
+  // Process and convert BLOB images to base64
+  const itemsWithPictures = items.map(item => {
+    const itemData = item.toJSON(); // Convert Sequelize object to plain JSON
+    if (itemData.Picture) {
+      itemData.Picture = itemData.Picture.toString('base64'); // Convert image BLOB to base64 string
+    }
+    return itemData;
+  });
+
+  res.status(200).json({
+    message: 'Items fetched successfully',
+    items: itemsWithPictures,
+  });
+});
+
 exports.findAllItems = factory.getAll(Items);
 exports.deleteItems = factory.deleteOne(Items);
 exports.getItemsByID = factory.getOne(Items);
@@ -256,4 +355,6 @@ exports.getItemsForSeller = getItemsForSeller;
 exports.updateItem = updateItem;
 exports.getSellerItemsByCategory = getSellerItemsByCategory;
 exports.getItemsByCategory = getItemsByCategory;
-exports.getAllItems = getAllItems
+exports.getAllItems = getAllItems;
+exports.searchItems = searchItems;
+exports.searchItemsForSeller = searchItemsForSeller;
