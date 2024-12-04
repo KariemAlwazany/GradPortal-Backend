@@ -2,7 +2,7 @@ const db = require('./../models/userModel');
 const factory = require('./factoryController');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
-
+const jwt = require('jsonwebtoken');
 const User = db.User;
 
 const filterObj = (obj, ...allowedFields) => {
@@ -156,6 +156,51 @@ exports.getNormalUserCount = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.updatePhoneNumber = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];  // Token should be sent as 'Bearer <token>'
+    
+    if (!token) {
+      return next(new AppError('You are not logged in!', 401)); // Token not found
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);  // Verify token with the JWT_SECRET
+
+    const user = await User.findOne({
+      where: { id: decoded.id },  // Use the ID from the decoded token
+    });
+
+    if (!user) {
+      return next(new AppError('User not found', 404));  // User not found
+    }
+
+    let { phone_number } = req.body;
+
+    // Debugging: Check if phone_number is being passed correctly
+    console.log(`Current phone number: ${user.phone_number}, New phone number: ${phone_number}`);
+
+
+    // Step 5: Update the user's phone number
+    user.phone_number = phone_number;
+    await user.save();  // Save changes to the database
+
+    console.log(`Updated phone number: ${user.phone_number}`); // Debugging: Log the updated phone number
+
+    // Step 6: Respond with success
+    res.status(200).json({
+      status: 'success',
+      message: 'Phone number updated successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    return next(new AppError('Something went wrong while updating phone number', 500));
+  }
+};
+
+
+
+
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);

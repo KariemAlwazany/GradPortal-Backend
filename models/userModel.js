@@ -66,7 +66,10 @@ const User = sequelize.define(
       type: DataTypes.VIRTUAL,
       allowNull: true,
     },
-
+    phone_number:{
+      type: DataTypes.STRING,
+      allowNull: true,
+    }
     // active: {
     //   type: Boolean,
     //   defaultValue: true,
@@ -77,6 +80,7 @@ const User = sequelize.define(
     indexes: [
       { unique: true, fields: ['Email'] },
       { unique: true, fields: ['Username'] },
+      { unique: true, fields: ['phone_number'] },
     ],
   },
 );
