@@ -1,14 +1,15 @@
 const db = require('./../models/submitModel');
 const db1 = require('./../models/userModel');
-const db2 = require('./../models/projectsModel');
 const db3 = require('./../models/doctorModel');
+
+const db2 = require('./../models/deadlinesModel');
 const catchAsync = require('./../utils/catchAsync');
 const { sequelize } = require('./../models'); // Import sequelize correctly from your models/index.js
 
 const Submit = db.Submit;
 const User = db1.User;
 const Doctor = db3.Doctor;
-const Projects = db2.Projects;
+const Deadline = db2.Deadline;
 
 const studentSubmit = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
@@ -121,8 +122,44 @@ const getSubmissionsForDoctor = catchAsync(async (req, res, next) => {
   });
 });
 
+const getFinalSubmission = catchAsync(async (req, res, next) => {
+  const student = req.params.student;
+  const task = await Deadline.findOne({ where: { Title: 'Final Submission' } });
+  if (!task) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Final Submission deadline not found.',
+    });
+  }
+  const findSubmit = await Submit.findOne({
+    where: { Student: student, TaskID: task.id },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      findSubmit,
+    },
+  });
+});
+const getAbstractSubmission = catchAsync(async (req, res, next) => {
+  const student = req.params.student;
+  const task = await Deadline.findOne({
+    where: { Title: 'Abstract Submission' },
+  });
+  const findSubmit = await Submit.findOne({
+    where: { Student: student, TaskID: task.id },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      findSubmit,
+    },
+  });
+});
 module.exports = {
   studentSubmit,
   getSubmission,
   getSubmissionsForDoctor,
+  getFinalSubmission,
+  getAbstractSubmission,
 };

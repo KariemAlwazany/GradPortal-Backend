@@ -115,5 +115,16 @@ const decline = catchAsync(async (req, res, next) => {
     message: 'Partner declined successfully',
   });
 });
-
-module.exports = { addToList, getCurrent, getStatus, approve, decline };
+const getParnterRequestedInfo = catchAsync(async (req, res, next) => {
+  const username = req.params.Username;
+  const user = await Student.findOne({ where: { username: username } });
+  res.status(200).send(user);
+});
+module.exports = {
+  addToList,
+  getCurrent,
+  getStatus,
+  approve,
+  decline,
+  getParnterRequestedInfo,
+};

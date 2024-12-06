@@ -21,6 +21,8 @@ const itemsRouter = require('./routes/itemsRouter');
 const shopRouter = require('./routes/shopRouter');
 const tableRouter = require('./routes/tableRouter');
 const roomRouter = require('./routes/roomRouter');
+
+const manageRouter = require('./routes/manageRouter');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -71,6 +73,7 @@ app.use('/GP/v1/seller/items', itemsRouter);
 app.use('/GP/v1/seller/shop', shopRouter);
 app.use('/GP/v1/table', tableRouter);
 app.use('/GP/v1/room', roomRouter);
+app.use('/GP/v1/manage', manageRouter);
 // Handle undefined routes
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

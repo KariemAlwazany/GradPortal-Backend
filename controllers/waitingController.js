@@ -236,12 +236,20 @@ getListForCurrentStudent = catchAsync(async (req, res, next) => {
     },
   });
 });
-const { sequelize } = require('../models'); // Make sure sequelize instance is imported
+const { sequelize } = require('../models');
 
 getListForCurrentDoctor = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
   const user = await User.findOne({ where: { id: userID } });
   const username = user.Username;
+  console.log(
+    '****************************************************************',
+  );
+  console.log(username);
+  console.log(
+    '****************************************************************',
+  );
+
   const doctor = await Doctor.findOne({ where: { Username: username } });
 
   const query = `
@@ -559,6 +567,7 @@ acceptOneOfThree = catchAsync(async (req, res, next) => {
     data: { reservation },
   });
 });
+
 module.exports = {
   addToWaiting,
   updateWaiting,
