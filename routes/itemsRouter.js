@@ -7,24 +7,22 @@ const upload = require('./../middleware/multer');
 
 
 router.use(authController.protect);
+
 router.post('/additem', upload.single('Picture'), itemsController.addItem);
-  
+
+router.patch('/updateItem/:item_id', itemsController.updateItem);
+
 router.get('/getSelleritems', itemsController.getItemsForSeller);
 router.get('/getSellerItemsByCategory', itemsController.getSellerItemsByCategory);
 router.get('/getItemsByCategory', itemsController.getItemsByCategory)
 router.get('/getAllItems', itemsController.getAllItems);
-router.patch('/updateItem/:item_id', itemsController.updateItem);
 router.get('/searchItems', itemsController.searchItems);
 router.get('/searchItemsForSeller', itemsController.searchItemsForSeller);
-
-// router.route('/updateitems/:id')
-//     .patch(itemsController.updateItems);
-    
-// router.route('/deleteitems/:id')
-//     .delete(itemsController.deleteItems);
-
-// router.route('/getName/:Username')
-//   .get(itemsController.getitemsByName);
+router.get('/countItemsForSeller', itemsController.countItemsForSeller);
+router.get('/limitedStockItemsForSeller', itemsController.limitedStockForSeller);
+router.get('/outOfStockItemsForSeller', itemsController.outOfStockItemsForSeller);
+router.get('/countLimitedStock', itemsController.countLimitedStock);
+router.get('/countOutOfStockItems', itemsController.countOutOfStockItems);
 
 module.exports = router;
 

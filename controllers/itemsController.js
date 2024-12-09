@@ -228,7 +228,7 @@ const updateItem = async (req, res) => {
     if (Description) updatedFields.Description = Description;
     if (Type) updatedFields.Type = Type;
     if (Category) updatedFields.Category = Category;
-    if (Available !== undefined) updatedFields.Available = Available === 'true';
+    if (Available) updatedFields.Available;
 
     if (req.file) {
       updatedFields.Picture = req.file.buffer;
@@ -267,6 +267,7 @@ const searchItems = async (req, res) => {
         item_name: {
           [Sequelize.Op.like]: `%${searchQuery}%`, // Use LIKE operator for searching
         },
+        Available: true, // Only consider available items
       },
     });
 
@@ -347,6 +348,178 @@ const searchItemsForSeller = catchAsync(async (req, res, next) => {
   });
 });
 
+
+
+
+const countItemsForSeller = catchAsync(async (req, res, next) => {
+  // Extract userID from JWT (set by the verifyToken middleware)
+  const userID = req.user.id;
+
+  // Find the user by userID
+  const user = await User.findOne({ where: { id: userID } });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Find the seller by matching the username
+  const seller = await Sellers.findOne({ where: { Username: user.Username } });
+  if (!seller) {
+    return res.status(404).json({ message: 'Seller not found' });
+  }
+
+  // Get the Shop_name from the seller
+  const { Shop_name } = seller;
+
+  // Count the number of items associated with the seller's Shop_name
+  const itemCount = await Items.count({ where: { Shop_name } });
+
+  // Return a response with the item count
+  res.status(200).json({
+    message: 'Items count fetched successfully',
+    itemCount,
+  });
+});
+
+
+
+
+
+
+const limitedStockForSeller = catchAsync(async (req, res, next) => {
+  const userID = req.user.id;
+  const user = await User.findOne({ where: { id: userID } });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const username = user.Username;
+  const seller = await Sellers.findOne({ where: { Username: username } });
+  if (!seller) {
+    return res.status(404).json({ message: 'Seller not found' });
+  }
+
+  const { Shop_name } = seller;
+  // Adjust the query to filter items with Quantity <= 5 and Quantity > 0
+  const items = await Items.findAll({
+    where: {
+      shop_name: Shop_name,
+      Quantity: { [Op.lte]: 5, [Op.gt]: 0 },  // Quantity less than or equal to 5, but greater than 0
+    },
+  });
+
+  if (items.length === 0) {
+    return res.status(404).json({ message: 'No items with Quantity less than or equal to 5 found' });
+  }
+
+  const itemsWithPictures = items.map(item => {
+    const itemData = item.toJSON(); 
+    if (itemData.Picture) {
+      itemData.Picture = itemData.Picture.toString('base64');  
+    }
+    return itemData;
+  });
+
+  res.status(200).json({
+    message: 'Items with Quantity 5 or less fetched successfully',
+    items: itemsWithPictures,
+  });
+});
+
+
+
+
+
+
+const outOfStockItemsForSeller = catchAsync(async (req, res, next) => {
+  const userID = req.user.id;
+  const user = await User.findOne({ where: { id: userID } });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  const username = user.Username;
+  const seller = await Sellers.findOne({ where: { Username: username } });
+  if (!seller) {
+    return res.status(404).json({ message: 'Seller not found' });
+  }
+
+  const { Shop_name } = seller;
+  // Adjust the query to filter items with Quantity = 0
+  const items = await Items.findAll({
+    where: {
+      shop_name: Shop_name,
+      Quantity: 0,  // Only items with Quantity 0
+    },
+  });
+
+  if (items.length === 0) {
+    return res.status(404).json({ message: 'No out-of-stock items found' });
+  }
+
+  const itemsWithPictures = items.map(item => {
+    const itemData = item.toJSON(); 
+    if (itemData.Picture) {
+      itemData.Picture = itemData.Picture.toString('base64');  
+    }
+    return itemData;
+  });
+
+  res.status(200).json({
+    message: 'Out of stock items fetched successfully',
+    items: itemsWithPictures,
+  });
+});
+
+
+
+
+
+
+const countLimitedStock = async (req, res) => {
+  try {
+    // Count items with quantity less than 5 but not 0
+    const limitedStockCount = await Items.count({
+      where: {
+        Quantity: {
+          [Sequelize.Op.lt]: 5,  // Less than 5
+          [Sequelize.Op.ne]: 0,  // Not equal to 0
+        },
+      },
+    });
+
+    return res.status(200).json({
+      message: `There are ${limitedStockCount} items with limited stock.`,
+      count: limitedStockCount,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error counting limited stock items.' });
+  }
+};
+
+
+
+
+
+const countOutOfStockItems = async (req, res) => {
+  try {
+    // Count items with quantity equal to 0
+    const outOfStockCount = await Items.count({
+      where: {
+        Quantity: 0,  // Only items with quantity of 0
+      },
+    });
+
+    return res.status(200).json({
+      message: `There are ${outOfStockCount} items that are out of stock.`,
+      count: outOfStockCount,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error counting out-of-stock items.' });
+  }
+};
+
 exports.findAllItems = factory.getAll(Items);
 exports.deleteItems = factory.deleteOne(Items);
 exports.getItemsByID = factory.getOne(Items);
@@ -358,3 +531,8 @@ exports.getItemsByCategory = getItemsByCategory;
 exports.getAllItems = getAllItems;
 exports.searchItems = searchItems;
 exports.searchItemsForSeller = searchItemsForSeller;
+exports.countItemsForSeller = countItemsForSeller;
+exports.limitedStockForSeller = limitedStockForSeller;
+exports.outOfStockItemsForSeller = outOfStockItemsForSeller;
+exports.countLimitedStock = countLimitedStock;
+exports.countOutOfStockItems = countOutOfStockItems;

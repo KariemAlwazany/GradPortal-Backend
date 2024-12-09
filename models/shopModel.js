@@ -20,13 +20,10 @@ const Shop = sequelize.define(
       onDelete: 'SET NULL',
       allowNull: true, 
     },
-    longitude: {
-      type: DataTypes.FLOAT,
+    status: {
+      type: DataTypes.STRING,
       allowNull: true,
-    },
-    latitude: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
+      defaultValue: 'open',
     },
   },
   {

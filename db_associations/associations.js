@@ -9,6 +9,7 @@ const { Doctor } = require('../models/doctorModel');
 const Items = require('../models/itemsModel'); 
 const Shop = require('../models/shopModel'); 
 const Receipt = require('../models/receiptModel');
+const Offers = require('../models/offersModel');
 
 FavProjects.belongsTo(Projects, {
   foreignKey: 'GP_ID',
@@ -43,6 +44,18 @@ Receipt.belongsTo(Sellers, { foreignKey: 'shop_name', as: 'shop' });
 Receipt.belongsTo(Sellers, { foreignKey: 'Seller_Username', as: 'seller' });
 Receipt.belongsTo(User, { foreignKey: 'buyer_Username', as: 'buyer',});
 
+
+Items.hasMany(Offers, {
+  foreignKey: 'Item_ID',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+Offers.belongsTo(Items, {
+  foreignKey: 'Item_ID',
+  onDelete: 'CASCADE', 
+  onUpdate: 'CASCADE', 
+});
 
 // Define a loose association between Submit and Projects without enforcing a foreign key constraint
 Submit.belongsTo(Projects, {
