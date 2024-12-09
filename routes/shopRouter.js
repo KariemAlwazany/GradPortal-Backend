@@ -10,7 +10,8 @@ router.use(authController.protect);
 router.get('/findAllShops', shopController.findAllShops);
 
 router.patch('/updateShop', shopController.updateShop);
-    
+router.patch('/closeShopTemporary', shopController.closeShopTemporary);
+   
 router.delete('/deleteShop', shopController.deleteShop);
 
 router.post('/createShop', shopController.createShop);

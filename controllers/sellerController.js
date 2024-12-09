@@ -15,6 +15,7 @@ const getCurrentSeller = catchAsync(async (req, res, next) => {
   const seller = await Seller.findOne({ where: { Username: username } });
   res.status(200).send(seller);
 });
+
 const getAllSellerData = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
 

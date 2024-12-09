@@ -1,6 +1,5 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
-const Sellers = require('./sellerModel.js');
 
 const Items = sequelize.define(
   'Items',
@@ -34,7 +33,7 @@ const Items = sequelize.define(
     Available: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
-      defaultValue: true
+      defaultValue: true,
     },
     Picture: {
       type: DataTypes.BLOB('long'),  // Store the picture URL or path
@@ -48,11 +47,21 @@ const Items = sequelize.define(
       type: DataTypes.STRING,
       references: {
         model: 'Sellers', // The name of the referenced table
-        key: 'Shop_name',      // The primary key in the Shop table
+        key: 'Shop_name', // The primary key in the Sellers table
       },
       onUpdate: 'CASCADE',  // Options when Shop is updated
       onDelete: 'SET NULL', // What to do when Shop is deleted
       allowNull: true,
+    },
+    offer_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Offers', // Reference to the Offers table
+        key: 'Offer_ID', // The primary key in the Offers table
+      },
+      onUpdate: 'CASCADE',  // Update cascading behavior
+      onDelete: 'SET NULL', // Delete cascading behavior
+      allowNull: true,      // Allow null for items without offers
     },
   },
 );

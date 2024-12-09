@@ -66,10 +66,22 @@ const User = sequelize.define(
       type: DataTypes.VIRTUAL,
       allowNull: true,
     },
-    phone_number:{
+    phone_number: {
       type: DataTypes.STRING,
       allowNull: true,
-    }
+    },
+    longitude: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    latitude: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: true, // Set allowNull to true as this might not always be provided
+    },
     // active: {
     //   type: Boolean,
     //   defaultValue: true,
@@ -84,6 +96,7 @@ const User = sequelize.define(
     ],
   },
 );
+
 User.beforeSave(async (user, options) => {
   if (user.changed('Password') || user.isNewRecord) {
     user.Password = await bcrypt.hash(user.Password, 12);
@@ -118,4 +131,5 @@ User.prototype.generatePasswordToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   return token;
 };
+
 module.exports = { User };
