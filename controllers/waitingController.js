@@ -328,6 +328,10 @@ approveStudent = catchAsync(async (req, res, next) => {
       { where: { Username: studentUser } },
     );
 
+    const updateDoctor = await Doctor.update(
+      { StudentNumber: doctor.StudentNumber + 1 },
+      { where: { Username: doctor.Username } },
+    );
     res.status(200).json({
       status: 'success',
       data: {

@@ -3,6 +3,7 @@ const db1 = require('./../models/projectsModel');
 const db2 = require('./../models/userModel');
 const db3 = require('./../models/studentModel');
 const db4 = require('./../models/reservationModel');
+const db5 = require('./../models/manageModel');
 const { Sequelize } = require('sequelize');
 const catchAsync = require('./../utils/catchAsync');
 const Doctor = db.Doctor;
@@ -10,9 +11,24 @@ const Projects = db1.Projects;
 const User = db2.User;
 const Student = db3.Student;
 const Reservation = db4.Reservation;
+const Manage = db5.Manage;
 
 getAllDoctors = catchAsync(async (req, res, next) => {
   const allDoctors = await Doctor.findAll();
+
+  res.status(200).send(allDoctors);
+});
+const getAvailableDoctors = catchAsync(async (req, res, next) => {
+  const manage = await Manage.findOne({ where: {} });
+  const number = manage.StudentNumber;
+  const allDoctors = await Doctor.findAll({
+    where: {
+      Role: 'Doctor',
+      StudentNumber: {
+        [Sequelize.Op.lte]: number,
+      },
+    },
+  });
 
   res.status(200).send(allDoctors);
 });
@@ -95,4 +111,5 @@ module.exports = {
   getCurrentStudent,
   CurrentStudent,
   transfer,
+  getAvailableDoctors,
 };

@@ -1,6 +1,6 @@
 const db = require('./../models/tableModel');
 const db1 = require('./../models/postStatusModel');
-const db2 = require('./../models/projectsModel');
+const db2 = require('./../models/testTableModel');
 const db3 = require('./../models/roomModel');
 const db4 = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');

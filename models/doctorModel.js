@@ -20,6 +20,9 @@ const Doctor = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    StudentNumber: {
+      type: DataTypes.INTEGER,
+    },
   },
   {
     indexes: [{ unique: true, fields: ['Username'] }],

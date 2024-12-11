@@ -5,6 +5,7 @@ const studentController = require('./../controllers/studentController');
 
 const router = express.Router();
 router.get('/', doctorController.getAllDoctors);
+router.get('/available', doctorController.getAllDoctors);
 
 router.use(authController.protect);
 router.get('/students', doctorController.getStudents);
