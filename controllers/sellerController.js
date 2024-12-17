@@ -90,10 +90,6 @@ const updateSellerAndUser = catchAsync(async (req, res, next) => {
     },
   });
 });
-
-  
-  
-  
 exports.findAllSellers = factory.getAll(Seller); 
 exports.updateSeller = factory.updateOne(Seller);
 exports.deleteSeller = factory.deleteOne(Seller);

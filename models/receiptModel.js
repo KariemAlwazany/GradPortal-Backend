@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
-const Shop = require('../models/shopModel'); 
+const Shop = require('../models/shopModel');
 const Sellers = require('../models/sellerModel');
-const User = require('../models/userModel'); 
+const User = require('../models/userModel');
 
 const Receipt = sequelize.define('Receipt', {
   Receipt_ID: {
@@ -10,22 +10,22 @@ const Receipt = sequelize.define('Receipt', {
     primaryKey: true,
     autoIncrement: true,
   },
+  order_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'Orders', // Reference to Orders table
+      key: 'order_id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  },
   ShopName: {
     type: DataTypes.STRING,
     allowNull: false,
     references: {
-      model: 'Shops', 
+      model: 'Shops',
       key: 'shop_name',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE', 
-  },
-  Seller_Username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    references: {
-      model: 'Sellers',
-      key: 'username', 
     },
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
@@ -41,19 +41,15 @@ const Receipt = sequelize.define('Receipt', {
     onDelete: 'CASCADE',
   },
   buyer_phone_number: {
-    type: DataTypes.INTEGER, 
-    allowNull: false,  
-  },
-  itemName: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING, // Updated to STRING for international phone numbers
     allowNull: false,
   },
-  quantity: {
-    type: DataTypes.INTEGER,
+  items: {
+    type: DataTypes.JSON, // Stores an array of item details
     allowNull: false,
   },
-  price: {
-    type: DataTypes.DECIMAL(10, 2),
+  total_price: {
+    type: DataTypes.INTEGER, // Total cost for the receipt
     allowNull: false,
   },
   Payment_Method: {
@@ -63,7 +59,7 @@ const Receipt = sequelize.define('Receipt', {
   Date: {
     type: DataTypes.DATE,
     allowNull: false,
-    defaultValue: DataTypes.NOW, 
+    defaultValue: DataTypes.NOW,
   },
 });
 

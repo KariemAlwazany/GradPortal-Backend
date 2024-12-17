@@ -16,7 +16,10 @@ const favProjectsRouter = require('./routes/favProjectsRouter');
 const meetingsRouter = require('./routes/meetingsRouter');
 const messagesRouter = require('./routes/messagesRouter');
 const itemsRouter = require('./routes/itemsRouter');
+const cartRouter = require('./routes/cartRouter');
+const ordersRouter = require('./routes/ordersRouter');
 const shopRouter = require('./routes/shopRouter');
+const buyRequestsRouter = require('./routes/buyRequestsRouter');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
@@ -67,6 +70,9 @@ app.use('/GP/v1/submit', submitRouter);
 app.use('/GP/v1/messages', messagesRouter);
 app.use('/GP/v1/seller/items', itemsRouter);
 app.use('/GP/v1/shop', shopRouter);
+app.use('/GP/v1/shop/cart', cartRouter);
+app.use('/GP/v1/buyRequests', buyRequestsRouter);
+app.use('/GP/v1/orders', ordersRouter);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {
