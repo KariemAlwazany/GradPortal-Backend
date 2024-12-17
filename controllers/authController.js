@@ -50,7 +50,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     req.body;
   console.log(req.body);
   approval = 'true';
-  if (Role == 'Doctor' || Role == 'Seller') {
+  if (Role == 'Doctor' || Role == 'Seller' || Role == 'Delivery') {
     approval = 'true';
   }
   const newUser = await User.create({
@@ -87,6 +87,7 @@ exports.signup = catchAsync(async (req, res, next) => {
         shop_name: req.body.shopName,
         Seller_Username: Username, 
       });
+      
   
       res.status(201).json({
         message: 'Seller and shop created successfully',
@@ -96,6 +97,19 @@ exports.signup = catchAsync(async (req, res, next) => {
 
     console.log(req.body.shopName);
 
+  }
+  else if (Role === 'Delivery') {
+    const newDelivery = await DeliveryUser.create({
+      Username: Username,
+      PhoneNumber: req.body.phoneNumber,
+    });
+
+    res.status(201).json({
+      message: 'Delivery user created successfully',
+      deliveryUser: newDelivery,
+    });
+
+    console.log(req.body.phoneNumber);
   }
   createSendToken(newUser, 201, res);
 });
