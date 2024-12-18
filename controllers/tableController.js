@@ -14,7 +14,16 @@ const User = db4.User;
 const { Sequelize } = require('sequelize');
 const createTable = catchAsync(async (req, res, next) => {
   const destroyStatus = await Status.destroy({ where: {} });
-  const { StartDate, EndDate } = req.body;
+  const {
+    StartDate,
+    EndDate,
+    SessionDuration,
+    BreakBetweenSessions,
+    BreakInterval,
+    BreakDuration,
+    DiscussionsPerSession,
+  } = req.body;
+  console.log(req.body);
 
   // Clear existing table
   await Table.destroy({ where: {} });
@@ -45,10 +54,10 @@ const createTable = catchAsync(async (req, res, next) => {
 
   const totalProjects = projects.length;
   const projectsPerDay = Math.ceil(totalProjects / days);
-  const sessionDuration = 25; // 20 minutes discussion + 5 minutes break
-  const discussionsPerSession = 4; // 4 discussions at the same time
-  const breakInterval = 70; // 1 hour and 10 minutes
-  const breakDuration = 20; // 20 minutes break
+  const sessionDuration = SessionDuration + BreakBetweenSessions; // 20 minutes discussion + 5 minutes break
+  const discussionsPerSession = DiscussionsPerSession; // 4 discussions at the same time
+  const breakInterval = BreakInterval; // 1 hour and 10 minutes
+  const breakDuration = BreakDuration; // 20 minutes break
 
   let unscheduledProjects = [...projects];
   let scheduledProjects = [];

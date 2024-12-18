@@ -22,6 +22,7 @@ const Doctor = sequelize.define(
     },
     StudentNumber: {
       type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
   },
   {

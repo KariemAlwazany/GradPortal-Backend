@@ -19,6 +19,10 @@ router.get(
 );
 router.get('/studnet/count', waitingController.getCount);
 router.get('/projects/count', waitingController.getCount);
+router.get(
+  '/declined-doctor-list/:username',
+  waitingController.getDeclinedDoctorList,
+);
 
 router.post('/student/approve', waitingController.approveStudent);
 router.post('/student/decline', waitingController.declineStudent);

@@ -120,6 +120,17 @@ const getParnterRequestedInfo = catchAsync(async (req, res, next) => {
   const user = await Student.findOne({ where: { username: username } });
   res.status(200).send(user);
 });
+const getListOfDeclinedPartners = catchAsync(async (req, res, next) => {
+  const username = req.params.username;
+  const declinedPartners = await WaitingPartner.findAll({
+    where: {
+      [Sequelize.Op.or]: [{ Partner_1: username }, { Partner_2: username }],
+      PartnerStatus: 'declined',
+    },
+  });
+  res.status(200).send(declinedPartners);
+});
+
 module.exports = {
   addToList,
   getCurrent,
@@ -127,4 +138,5 @@ module.exports = {
   approve,
   decline,
   getParnterRequestedInfo,
+  getListOfDeclinedPartners,
 };

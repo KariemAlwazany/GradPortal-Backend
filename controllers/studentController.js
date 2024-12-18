@@ -49,10 +49,20 @@ const updateStudent = catchAsync(async (req, res, next) => {
   });
   res.status(200).send(student);
 });
+const getNotPartneredStudents = catchAsync(async (req, res, next) => {
+  const username = req.params.username;
+  console.log(username);
+  const student = await Student.findAll({
+    where: { Username: { [Sequelize.Op.ne]: username }, Status: 'start' },
+  });
+
+  res.status(200).send(student);
+});
 module.exports = {
   CurrentStudent,
   getAllStudents,
   getStudent,
   getAll,
   updateStudent,
+  getNotPartneredStudents,
 };

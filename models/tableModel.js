@@ -43,6 +43,10 @@ const Table = sequelize.define('Discussion_Table', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  Submission: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 module.exports = { Table };

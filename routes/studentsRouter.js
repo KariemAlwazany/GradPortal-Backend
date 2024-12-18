@@ -8,5 +8,7 @@ router.get('/specific/:username', studentController.getStudent);
 router.use(authController.protect);
 router.get('/getCurrentStudent', studentController.CurrentStudent);
 router.get('/', studentController.getAllStudents);
+router.get('/available/:username', studentController.getNotPartneredStudents);
+
 router.patch('/', studentController.updateStudent);
 module.exports = router;

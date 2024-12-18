@@ -14,4 +14,9 @@ router.get(
   '/getParnterRequestedInfo/:Username',
   waitingPartnerController.getParnterRequestedInfo,
 );
+router.get(
+  '/declined-list/:username',
+  waitingPartnerController.getListOfDeclinedPartners,
+);
+
 module.exports = router;

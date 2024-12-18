@@ -572,6 +572,20 @@ acceptOneOfThree = catchAsync(async (req, res, next) => {
   });
 });
 
+getDeclinedDoctorList = catchAsync(async (req, res, next) => {
+  const username = req.params.username;
+
+  const declinedList = await WaitingList.findAll({
+    where: {
+      Partner_1: username,
+      DoctorStatus: 'decline',
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: { declinedList },
+  });
+});
 module.exports = {
   addToWaiting,
   updateWaiting,
@@ -586,4 +600,5 @@ module.exports = {
   declineProject,
   getThreeDoctors,
   acceptOneOfThree,
+  getDeclinedDoctorList,
 };

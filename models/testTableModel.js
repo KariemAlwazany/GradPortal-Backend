@@ -40,6 +40,10 @@ const Projects = sequelize.define('GP', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  Submission: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 });
 
 module.exports = { Projects };

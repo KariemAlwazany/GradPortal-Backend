@@ -8,4 +8,5 @@ router.get('/current', projectsController.getCurrentProjects);
 router.get('/all/count', projectsController.getProjectsCount);
 router.get('/software/count', projectsController.getSoftwareCount);
 router.get('/hardware/count', projectsController.getHardwareCount);
+router.get('/specific/:id', projectsController.getProjectDetails);
 module.exports = router;

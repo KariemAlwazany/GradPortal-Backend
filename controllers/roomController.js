@@ -2,6 +2,7 @@ const db = require('./../models/roomModel');
 const db1 = require('./../models/userModel');
 const db2 = require('./../models/projectsModel');
 const db3 = require('./../models/doctorModel');
+
 const catchAsync = require('./../utils/catchAsync');
 const { sequelize } = require('./../models'); // Import sequelize correctly from your models/index.js
 

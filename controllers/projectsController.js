@@ -42,10 +42,16 @@ getHardwareCount = catchAsync(async (req, res, next) => {
     },
   });
 });
+getProjectDetails = catchAsync(async (req, res, next) => {
+  const GP_ID = req.params.id;
+  const projectDetails = await Projects.findOne({ where: { GP_ID: GP_ID } });
+  res.status(200).send(projectDetails);
+});
 module.exports = {
   getAllProjects,
   getCurrentProjects,
   getProjectsCount,
   getSoftwareCount,
   getHardwareCount,
+  getProjectDetails,
 };
