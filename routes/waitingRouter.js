@@ -7,6 +7,9 @@ router.post('/doctors', waitingController.acceptOneOfThree);
 
 router.get('/doctors', waitingController.getThreeDoctors);
 router.use(authController.protect);
+router.patch('/projectSelected', waitingController.projectSelected);
+router.patch('/informationEntered', waitingController.infromationEntered);
+
 router.post('/', waitingController.addToWaiting);
 router.get('/getCurrent', waitingController.getListForCurrentStudent);
 router.get(
@@ -28,7 +31,11 @@ router.post('/student/approve', waitingController.approveStudent);
 router.post('/student/decline', waitingController.declineStudent);
 router.post('/project/approve', waitingController.approveProject);
 router.post('/project/decline', waitingController.declineProject);
-router.use(manageController.checkFindDoctor);
-router.patch('/current', waitingController.updateWaiting);
+
+router.patch(
+  '/current',
+  manageController.checkFindDoctor,
+  waitingController.updateWaiting,
+);
 
 module.exports = router;

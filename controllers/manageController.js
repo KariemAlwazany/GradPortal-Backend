@@ -21,10 +21,10 @@ const checkJoin = catchAsync(async (req, res, next) => {
 
   const check = await Manage.findOne({});
 
-  const joinApplicationDate = new Date(check.JoinApplication);
+  const JoiningApplicationDate = new Date(check.JoiningApplication);
 
-  if (check.JoinApplicationStatus == 'Show') {
-    if (currentDate < joinApplicationDate) {
+  if (check.JoiningApplicationStatus == 'Show') {
+    if (currentDate < JoiningApplicationDate) {
       next();
     } else {
       return next(new AppError('Cannot Join Application at this time', 401));
@@ -59,7 +59,7 @@ const checkFindDoctor = catchAsync(async (req, res, next) => {
 
   const checkFindDoctorDate = new Date(check.FindDoctor);
   if (check.FindDoctorStatus == 'Show') {
-    if (currentDate < checkFindDoctor) {
+    if (currentDate < checkFindDoctorDate) {
       next();
     } else {
       res.status(404).json({

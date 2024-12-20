@@ -61,7 +61,7 @@ const getStudents = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
   const user = await User.findOne({ where: { id: userID } });
   const username = user.Username;
-
+  console.log(username);
   const allStudents = await Projects.findAll({
     where: {
       [Sequelize.Op.or]: [

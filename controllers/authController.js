@@ -9,6 +9,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('./../utils/email');
 const { Op } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 const User = db.User;
 const Student = db1.Student;
@@ -82,7 +83,6 @@ exports.signup = catchAsync(async (req, res, next) => {
       Shop_name: req.body.shopName,
     });
     console.log(req.body);
-
   }
   createSendToken(newUser, 201, res);
 });
@@ -237,8 +237,11 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 exports.changePassword = catchAsync(async (req, res, next) => {
   const { password, email } = req.body;
   console.log(req.body);
+  const saltRounds = 12; // Number of rounds for hashing
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
   const user = await User.update(
-    { Password: password },
+    { Password: hashedPassword },
     {
       where: { Email: email },
     },

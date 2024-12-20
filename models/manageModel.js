@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
 
 const Manage = sequelize.define('Manage', {
-  JoinApplication: {
+  JoiningApplication: {
     type: DataTypes.STRING,
   },
   FindPartners: {
@@ -20,7 +20,7 @@ const Manage = sequelize.define('Manage', {
   StudentNumber: {
     type: DataTypes.INTEGER,
   },
-  JoinApplicationStatus: {
+  JoiningApplicationStatus: {
     type: DataTypes.STRING,
   },
   FindPartnersStatus: {
