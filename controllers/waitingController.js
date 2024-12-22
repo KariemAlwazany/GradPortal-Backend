@@ -44,26 +44,21 @@ const addToWaiting = catchAsync(async (req, res, next) => {
       where: { Partner_2: Partner_1, PartnerStatus: 'approved' },
     });
     Partner_2 = getPartner_2.Partner_1;
-    console.log(
-      '****************************************************************',
-    );
-    console.log(Partner_2);
-    console.log(
-      '****************************************************************',
-    );
+
     console.log(req.body);
     checkWaitingList = await WaitingList.findOne({
       where: { Partner_1: student.Username },
     });
-    console.log(checkWaitingList);
+    console.log('waiting list is :------' + checkWaitingList);
     if (checkWaitingList) {
       console.log('in check waiting list ');
       if (checkWaitingList.Doctor1 != null) {
+        console.log('in if statment ');
         const updateDoctor = await WaitingList.update(
-          { Doctor1: req.body.Doctor1 },
+          { Doctor1: req.body.Doctor1, ProjectType: req.body.ProjectType },
           { where: { Partner_1: student.Username } },
         );
-        console.log(updateDoctor);
+        console.log('update doctor : ' + updateDoctor);
 
         checkWaitingList.DoctorStatus = 'waiting';
         checkWaitingList.ProjectStatus = 'waiting';
@@ -74,6 +69,8 @@ const addToWaiting = catchAsync(async (req, res, next) => {
             updateDoctor,
           },
         });
+      } else {
+        console.log('in else statment ');
       }
     } else {
       const {
@@ -278,7 +275,11 @@ const getListForCurrentDoctor = catchAsync(async (req, res, next) => {
       s1.Status AS Student1Status,
       s2.Username AS Student2Username,
       s2.Registration_number AS Student2RegistrationNumber,
-      s2.Status AS Student2Status
+      s2.Status AS Student2Status,
+      u1.Email AS Student1Email,
+      u1.FullName AS Student1FullName,
+      u2.Email AS Student2Email,
+      u2.FullName AS Student2FullName
     FROM 
       WaitingLists wl
     LEFT JOIN 
@@ -289,8 +290,18 @@ const getListForCurrentDoctor = catchAsync(async (req, res, next) => {
       Students s2 
     ON 
       wl.Partner_2 = s2.Username
+    LEFT JOIN 
+      Users u1
+    ON 
+      s1.Username = u1.Username
+    LEFT JOIN 
+      Users u2
+    ON 
+      s2.Username = u2.Username
     WHERE 
       wl.Doctor1 = :doctorUsername 
+      AND wl.Doctor2 IS NULL
+      AND wl.Doctor3 IS NULL
       AND wl.DoctorStatus = 'waiting'
   `;
 
@@ -590,7 +601,73 @@ acceptOneOfThree = catchAsync(async (req, res, next) => {
     data: { reservation },
   });
 });
+undoDoctorRequest = catchAsync(async (req, res, next) => {
+  const userid = req.user.id;
+  const username = await User.findOne({ where: { id: userid } });
+  const student = username.Username;
+  const updateList = await WaitingList.update(
+    {
+      Doctor1: 'decline',
+      Doctor2: null,
+      Doctor3: null,
+      DoctorStatus: 'waiting',
+    },
+    { where: { Partner_1: student } },
+  );
+  await Student.update(
+    { Status: 'approvedpartner' },
+    { where: { Username: student } },
+  );
+  res.status(200).json({
+    status: 'success',
+    data: { updateList },
+  });
+});
+undoPartnerRequest = catchAsync(async (req, res, next) => {
+  const userid = req.user.id;
+  const username = await User.findOne({ where: { id: userid } });
+  const student = username.Username;
 
+  const findList = await WaitingPartner.update(
+    { PartnerStatus: 'undo' },
+    {
+      where: {
+        [Sequelize.Op.or]: [{ Partner_1: student }, { Partner_2: student }],
+        PartnerStatus: 'waiting',
+      },
+    },
+  );
+  const updateStudent = await Student.update(
+    { Status: 'start' },
+    { where: { Username: student } },
+  );
+
+  res.status(200).json({
+    status: 'success',
+    data: { findList },
+  });
+});
+undoProjectRequest = catchAsync(async (req, res, next) => {
+  const userid = req.user.id;
+  const username = await User.findOne({ where: { id: userid } });
+  const student = username.Username;
+  const updateList = await WaitingList.update(
+    {
+      ProjectStatus: 'waiting',
+      ProjectDescription: null,
+      ProjectTitle: null,
+    },
+    { where: { Partner_1: student } },
+  );
+  await Student.update(
+    { Status: 'completed' },
+    { where: { Username: student } },
+  );
+  res.status(200).json({
+    status: 'success',
+    data: { updateList },
+  });
+});
 getDeclinedDoctorList = catchAsync(async (req, res, next) => {
   const username = req.params.username;
 
@@ -632,6 +709,7 @@ infromationEntered = catchAsync(async (req, res, next) => {
     data: { findStudent },
   });
 });
+
 module.exports = {
   addToWaiting,
   updateWaiting,
@@ -649,4 +727,7 @@ module.exports = {
   getDeclinedDoctorList,
   projectSelected,
   infromationEntered,
+  undoDoctorRequest,
+  undoPartnerRequest,
+  undoProjectRequest,
 };

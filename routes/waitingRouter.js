@@ -32,6 +32,10 @@ router.post('/student/decline', waitingController.declineStudent);
 router.post('/project/approve', waitingController.approveProject);
 router.post('/project/decline', waitingController.declineProject);
 
+router.post('/doctor/undo-request', waitingController.undoDoctorRequest);
+router.post('/partner/undo-request', waitingController.undoPartnerRequest);
+router.post('/project/undo-request', waitingController.undoProjectRequest);
+
 router.patch(
   '/current',
   manageController.checkFindDoctor,
