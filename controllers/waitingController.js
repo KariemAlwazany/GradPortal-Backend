@@ -55,7 +55,7 @@ const addToWaiting = catchAsync(async (req, res, next) => {
       if (checkWaitingList.Doctor1 != null) {
         console.log('in if statment ');
         const updateDoctor = await WaitingList.update(
-          { Doctor1: req.body.Doctor1, ProjectType: req.body.ProjectType },
+          { Doctor1: req.body.Doctor1, ProjectType: student.GP_Type },
           { where: { Partner_1: student.Username } },
         );
         console.log('update doctor : ' + updateDoctor);
@@ -84,7 +84,7 @@ const addToWaiting = catchAsync(async (req, res, next) => {
       const waitingList = await WaitingList.create({
         Partner_1: Partner_1,
         Partner_2: Partner_2,
-        ProjectType: ProjectType,
+        ProjectType: student.GP_Type,
         ProjectStatus: ProjectStatus,
         PartnerStatus: PartnerStatus,
         Doctor1: Doctor1,
@@ -133,7 +133,7 @@ const addToWaiting = catchAsync(async (req, res, next) => {
       const waitingList = await WaitingList.create({
         Partner_1: Partner_1,
         Partner_2: Partner_2,
-        ProjectType: ProjectType,
+        ProjectType: student.GP_Type,
         ProjectStatus: ProjectStatus,
         PartnerStatus: PartnerStatus,
         Doctor1: Doctor1,
@@ -178,7 +178,7 @@ const addToWaiting = catchAsync(async (req, res, next) => {
       const waitingList = await WaitingList.create({
         Partner_1: Partner_1,
         Partner_2: 'no_partner',
-        ProjectType: ProjectType,
+        ProjectType: student.GP_Type,
         ProjectStatus: ProjectStatus,
         PartnerStatus: PartnerStatus,
         Doctor1: Doctor1,

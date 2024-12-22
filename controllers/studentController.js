@@ -58,6 +58,27 @@ const getNotPartneredStudents = catchAsync(async (req, res, next) => {
 
   res.status(200).send(student);
 });
+const getNotPartneredStudentsWithoutTheCurrent = catchAsync(
+  async (req, res, next) => {
+    const id = req.user.id;
+    const user = await User.findOne({ where: { id: id } });
+    const username = user.Username;
+    const findGPType = await Student.findOne({ where: { username: username } });
+    console.log(username);
+    const student = await Student.findAll({
+      where: {
+        Username: { [Sequelize.Op.ne]: username },
+
+        Status: {
+          [Sequelize.Op.or]: ['start', 'waitpartner', 'declinepartner'], // Match specified statuses
+        },
+        GP_Type: findGPType.GP_Type,
+      },
+    });
+
+    res.status(200).send(student);
+  },
+);
 module.exports = {
   CurrentStudent,
   getAllStudents,
@@ -65,4 +86,5 @@ module.exports = {
   getAll,
   updateStudent,
   getNotPartneredStudents,
+  getNotPartneredStudentsWithoutTheCurrent,
 };

@@ -68,6 +68,13 @@ exports.signup = catchAsync(async (req, res, next) => {
       Username: Username,
       Registration_number: req.body.registrationNumber,
       Degree: Degree,
+      GP_Type: req.body.GP_Type,
+      Age: req.body.Age,
+      Gender: req.body.Gender,
+      BE: req.body.BE,
+      FE: req.body.FE,
+      DB: req.body.DB,
+      City: req.body.City,
     });
   } else if (Role == 'Doctor') {
     const newDoctor = await Doctor.create({
