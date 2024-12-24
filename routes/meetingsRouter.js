@@ -17,6 +17,8 @@ router.post(
   '/createMeetingForGroup',
   meetingController.doctorCreateMeetingForGroup,
 );
+router.get('/student/meetings', meetingController.getStudentMeeting);
+
 router.patch('/editDate', meetingController.editMeeting);
 router.delete('/deleteMeeting', meetingController.cancleMeeting);
 router.get('/upcoming', meetingController.getCountUpCommingMeetings);

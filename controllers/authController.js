@@ -71,6 +71,7 @@ exports.signup = catchAsync(async (req, res, next) => {
       GP_Type: req.body.GP_Type,
       Age: req.body.Age,
       Gender: req.body.Gender,
+      Status: 'start',
       BE: req.body.BE,
       FE: req.body.FE,
       DB: req.body.DB,
