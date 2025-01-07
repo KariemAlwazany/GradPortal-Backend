@@ -24,6 +24,8 @@ const getAllSellerData = catchAsync(async (req, res, next) => {
   res.status(200).send(user);
 });
 
+
+
 const updateSellerAndUser = catchAsync(async (req, res, next) => {
   const { id } = req.user; 
   const {

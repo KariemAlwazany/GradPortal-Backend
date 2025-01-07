@@ -160,35 +160,32 @@ exports.getNormalUserCount = catchAsync(async (req, res, next) => {
 
 exports.updatePhoneNumber = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];  // Token should be sent as 'Bearer <token>'
+    const token = req.headers.authorization?.split(' ')[1];
     
     if (!token) {
-      return next(new AppError('You are not logged in!', 401)); // Token not found
+      return next(new AppError('You are not logged in!', 401));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);  // Verify token with the JWT_SECRET
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const user = await User.findOne({
-      where: { id: decoded.id },  // Use the ID from the decoded token
+      where: { id: decoded.id },
     });
 
     if (!user) {
-      return next(new AppError('User not found', 404));  // User not found
+      return next(new AppError('User not found', 404));
     }
 
     let { phone_number } = req.body;
 
-    // Debugging: Check if phone_number is being passed correctly
     console.log(`Current phone number: ${user.phone_number}, New phone number: ${phone_number}`);
 
 
-    // Step 5: Update the user's phone number
     user.phone_number = phone_number;
-    await user.save();  // Save changes to the database
+    await user.save();
 
-    console.log(`Updated phone number: ${user.phone_number}`); // Debugging: Log the updated phone number
+    console.log(`Updated phone number: ${user.phone_number}`);
 
-    // Step 6: Respond with success
     res.status(200).json({
       status: 'success',
       message: 'Phone number updated successfully',
