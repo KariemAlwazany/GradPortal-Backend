@@ -223,7 +223,7 @@ const updateItem = async (req, res) => {
       updatedFields.Available = 0;
     }
     if (item_name) updatedFields.item_name = item_name;
-    if (Quantity !== undefined) updatedFields.Quantity = Quantity;  // Update Quantity if provided
+    if (Quantity !== undefined) updatedFields.Quantity = Quantity;
     if (Price) updatedFields.Price = Price;
     if (Description) updatedFields.Description = Description;
     if (Type) updatedFields.Type = Type;
@@ -255,19 +255,17 @@ const updateItem = async (req, res) => {
 
 const searchItems = async (req, res) => {
   try {
-    const searchQuery = req.query.item_name; // Get search query from the query parameters
+    const searchQuery = req.query.item_name;
 
     if (!searchQuery) {
       return res.status(400).json({ message: 'Search query cannot be empty' });
     }
-
-    // Perform the search query using Sequelize
     const items = await Items.findAll({
       where: {
         item_name: {
-          [Sequelize.Op.like]: `%${searchQuery}%`, // Use LIKE operator for searching
+          [Sequelize.Op.like]: `%${searchQuery}%`,
         },
-        Available: true, // Only consider available items
+        Available: true,
       },
     });
 
@@ -275,16 +273,15 @@ const searchItems = async (req, res) => {
       return res.status(404).json({ message: 'No items found' });
     }
 
-    // Convert BLOB to Base64 string for Picture
     const itemsWithBase64Images = items.map(item => {
       let pictureBase64 = '';
       if (item.Picture) {
-        pictureBase64 = item.Picture.toString('base64'); // Convert BLOB to Base64
+        pictureBase64 = item.Picture.toString('base64');
       }
 
       return {
-        ...item.toJSON(),  // Convert Sequelize instance to JSON
-        Picture: pictureBase64, // Add Base64 encoded image
+        ...item.toJSON(),
+        Picture: pictureBase64,
       };
     });
 
@@ -299,7 +296,7 @@ const searchItems = async (req, res) => {
 
 
 const searchItemsForSeller = catchAsync(async (req, res, next) => {
-  const userID = req.user.id; // Get user ID from JWT token (decoded)
+  const userID = req.user.id;
   const user = await User.findOne({ where: { id: userID } });
 
   if (!user) {
@@ -313,18 +310,17 @@ const searchItemsForSeller = catchAsync(async (req, res, next) => {
   }
 
   const { Shop_name } = seller;
-  const searchQuery = req.query.item_name; // Get search query from the query parameters
+  const searchQuery = req.query.item_name;
 
   if (!searchQuery) {
     return res.status(400).json({ message: 'Search query cannot be empty' });
   }
 
-  // Perform the search query using Sequelize, limited to items for this seller
   const items = await Items.findAll({
     where: {
       shop_name: Shop_name,
       item_name: {
-        [Sequelize.Op.like]: `%${searchQuery}%`, // Use LIKE operator for searching
+        [Sequelize.Op.like]: `%${searchQuery}%`,
       },
     },
   });
@@ -333,11 +329,10 @@ const searchItemsForSeller = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: 'No items found for the given search' });
   }
 
-  // Process and convert BLOB images to base64
   const itemsWithPictures = items.map(item => {
-    const itemData = item.toJSON(); // Convert Sequelize object to plain JSON
+    const itemData = item.toJSON();
     if (itemData.Picture) {
-      itemData.Picture = itemData.Picture.toString('base64'); // Convert image BLOB to base64 string
+      itemData.Picture = itemData.Picture.toString('base64');
     }
     return itemData;
   });
@@ -352,28 +347,22 @@ const searchItemsForSeller = catchAsync(async (req, res, next) => {
 
 
 const countItemsForSeller = catchAsync(async (req, res, next) => {
-  // Extract userID from JWT (set by the verifyToken middleware)
   const userID = req.user.id;
 
-  // Find the user by userID
   const user = await User.findOne({ where: { id: userID } });
   if (!user) {
     return res.status(404).json({ message: 'User not found' });
   }
 
-  // Find the seller by matching the username
   const seller = await Sellers.findOne({ where: { Username: user.Username } });
   if (!seller) {
     return res.status(404).json({ message: 'Seller not found' });
   }
 
-  // Get the Shop_name from the seller
   const { Shop_name } = seller;
 
-  // Count the number of items associated with the seller's Shop_name
   const itemCount = await Items.count({ where: { Shop_name } });
 
-  // Return a response with the item count
   res.status(200).json({
     message: 'Items count fetched successfully',
     itemCount,
@@ -520,8 +509,32 @@ const countOutOfStockItems = async (req, res) => {
   }
 };
 
+
+
+
+
+const deleteItems = async (req, res) => {
+  try {
+    const { id } = req.params; 
+
+    const item = await Items.findByPk(id);
+
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+
+    await item.destroy();
+
+    res.status(200).json({ message: 'Item deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'An error occurred while deleting the item', error: error.message });
+  }
+};
+
+
 exports.findAllItems = factory.getAll(Items);
-exports.deleteItems = factory.deleteOne(Items);
+exports.deleteItems = deleteItems;
 exports.getItemsByID = factory.getOne(Items);
 exports.addItem = addItem;
 exports.getItemsForSeller = getItemsForSeller;

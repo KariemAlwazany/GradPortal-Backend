@@ -7,7 +7,8 @@ const router = express.Router();
 
 router.use(authController.protect);
   
-router.get('/findAllShops', shopController.findAllShops);
+router.get('/getAllShops', shopController.getAllShops);
+router.get('/getShopItems', shopController.getShopItems);
 
 router.patch('/updateShop', shopController.updateShop);
 router.patch('/closeShopTemporary', shopController.closeShopTemporary);

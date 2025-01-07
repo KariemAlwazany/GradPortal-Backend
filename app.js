@@ -25,6 +25,9 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const cors = require('cors');
+const favoriteItemsRouter = require('./routes/favoriteItemsRouter');
+const communityRouter = require('./routes/communityRouter');
+const ratingRouter = require('./routes/ratingRouter');
 
 const app = express();
 
@@ -48,7 +51,7 @@ app.use(express.json({ limit: '50mb' }));
 
 // Rate limiting to prevent abuse
 const limiter = rateLimit({
-  max: 100,
+  max: 1000,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
@@ -71,8 +74,11 @@ app.use('/GP/v1/messages', messagesRouter);
 app.use('/GP/v1/seller/items', itemsRouter);
 app.use('/GP/v1/shop', shopRouter);
 app.use('/GP/v1/shop/cart', cartRouter);
+app.use('/GP/v1/shop/favoriteItems', favoriteItemsRouter);
 app.use('/GP/v1/buyRequests', buyRequestsRouter);
 app.use('/GP/v1/orders', ordersRouter);
+app.use('/GP/v1/community', communityRouter);
+app.use('/GP/v1/shop/ratings', ratingRouter);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {

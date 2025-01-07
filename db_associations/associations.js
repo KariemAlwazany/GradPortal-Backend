@@ -16,6 +16,10 @@ const CartItems = require('../models/cartItemsModel');
 const Users = require('../models/userModel');
 const Orders = require('../models/ordersModel');
 const OrderItems = require('../models/orderItemsModel');
+const FavoriteItems = require('../models/favotireItemsModel');
+const Post = require('../models/postModel');
+const Comment = require('../models/commentModel');
+const Rating = require('../models/ratingModel');
 
 // FavProjects and Projects relationship
 FavProjects.belongsTo(Projects, {
@@ -80,6 +84,17 @@ Receipt.belongsTo(Orders, { foreignKey: 'order_id', as: 'ParentOrder' });
 Requests.belongsTo(User, { as: 'Sender', foreignKey: 'sender_id' });
 Requests.belongsTo(User, { as: 'Recipient', foreignKey: 'recipient_id' });
 
+// Community relationships
+Post.hasMany(Comment, { foreignKey: 'postId', as: 'comments' });
+Comment.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
+
+User.hasMany(FavoriteItems, { foreignKey: 'user_id' });
+FavoriteItems.belongsTo(User, { foreignKey: 'user_id' });
+
+Items.hasMany(FavoriteItems, { foreignKey: 'item_id' });
+FavoriteItems.belongsTo(Items, { foreignKey: 'item_id' });
+
+
 User.hasMany(Requests, {
   foreignKey: 'sender_id',
   as: 'SentRequests',
@@ -100,6 +115,13 @@ Offers.belongsTo(Items, {
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 });
+
+
+User.hasMany(Rating, { foreignKey: 'user_id' });
+Items.hasMany(Rating, { foreignKey: 'item_id' });
+Rating.belongsTo(User, { foreignKey: 'user_id', as: 'User' });
+Rating.belongsTo(Items, { foreignKey: 'item_id' });
+
 
 
 // Orders and OrderItems
@@ -123,6 +145,9 @@ OrderItems.belongsTo(Orders, { foreignKey: 'order_id', as: 'Order' });
 // OrderItems - Items Association
 OrderItems.belongsTo(Items, { foreignKey: 'item_id', as: 'Item' });
 Items.hasMany(OrderItems, { foreignKey: 'item_id', as: 'OrderItems' });
+
+
+
 
 
 // Submit and Projects loose association
@@ -162,6 +187,7 @@ module.exports = {
   Student,
   Submit,
   Doctor,
+  FavoriteItems,
   Sellers,
   Items,
   Shop,
@@ -172,4 +198,5 @@ module.exports = {
   CartItems,
   Orders,
   Users,
+  Rating,
 };

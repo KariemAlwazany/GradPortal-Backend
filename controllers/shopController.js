@@ -142,12 +142,83 @@ const deleteShop = catchAsync(async (req, res, next) => {
     message: `Shop '${shopName}' and its items have been deleted successfully, seller has been removed from Sellers table, and user role updated to 'User'.`,
   });
 });
-exports.findAllShops = factory.getAll(Shop);
+
+
+
+
+
+const getAllShops = catchAsync(async (req, res, next) => {
+  try {
+    // Fetch all shops
+    const shops = await Shop.findAll({
+      attributes: ['shop_name', 'Seller_Username', 'status'], // Adjust attributes as needed
+    });
+
+    if (!shops || shops.length === 0) {
+      return res.status(404).json({
+        message: 'No shops found',
+      });
+    }
+
+    // Respond with the list of shops
+    res.status(200).json({
+      message: 'Shops fetched successfully',
+      shops,
+    });
+  } catch (error) {
+    console.error('Error fetching shops:', error);
+    res.status(500).json({
+      message: 'Failed to fetch shops',
+      error: error.message,
+    });
+  }
+});
+
+const getShopItems = catchAsync(async (req, res, next) => {
+  try {
+    const { shop_name } = req.query;
+
+    if (!shop_name) {
+      return res.status(400).json({ message: 'Shop name is required' });
+    }
+
+    const shop = await Shop.findOne({ where: { shop_name } });
+    if (!shop) {
+      return res.status(404).json({ message: 'Shop not found' });
+    }
+
+    const items = await Items.findAll({ where: { shop_name } });
+
+    if (items.length === 0) {
+      return res.status(404).json({ message: 'No items found for this shop' });
+    }
+
+    const itemsWithPictures = items.map(item => {
+      const itemData = item.toJSON();
+      if (itemData.Picture) {
+        itemData.Picture = itemData.Picture.toString('base64'); 
+      }
+      return itemData;
+    });
+
+    res.status(200).json({
+      message: 'Items fetched successfully',
+      shopName: shop.shop_name,
+      items: itemsWithPictures,
+    });
+  } catch (err) {
+    console.error('Error fetching shop items:', err);
+    next(err);
+  }
+});
+
 exports.updateShop = factory.updateOne(Shop);
 exports.deleteShop = factory.deleteOne(Shop);
 exports.createShop = createShop;
 exports.deleteShop = deleteShop;
 exports.closeShopTemporary = closeShopTemporary;
+exports.getAllShops = getAllShops;
+exports.getShopItems = getShopItems;
 
 
 

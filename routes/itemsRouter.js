@@ -24,5 +24,7 @@ router.get('/outOfStockItemsForSeller', itemsController.outOfStockItemsForSeller
 router.get('/countLimitedStock', itemsController.countLimitedStock);
 router.get('/countOutOfStockItems', itemsController.countOutOfStockItems);
 
+router.delete('/deleteItem/:id', itemsController.deleteItems);
+
 module.exports = router;
 

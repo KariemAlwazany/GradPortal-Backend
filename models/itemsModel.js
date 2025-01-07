@@ -6,8 +6,8 @@ const Items = sequelize.define(
   {
     Item_ID: {
       type: DataTypes.INTEGER,
-      primaryKey: true,  // Only Item_ID is the primary key
-      autoIncrement: true,  // Auto-increment for Item_ID
+      primaryKey: true,
+      autoIncrement: true,
       allowNull: false,
     },
     item_name: {
@@ -36,7 +36,7 @@ const Items = sequelize.define(
       defaultValue: true,
     },
     Picture: {
-      type: DataTypes.BLOB('long'),  // Store the picture URL or path
+      type: DataTypes.BLOB('long'),
       allowNull: false,
     },
     Category: {
@@ -46,22 +46,22 @@ const Items = sequelize.define(
     Shop_name: {
       type: DataTypes.STRING,
       references: {
-        model: 'Sellers', // The name of the referenced table
-        key: 'Shop_name', // The primary key in the Sellers table
+        model: 'Sellers',
+        key: 'Shop_name',
       },
-      onUpdate: 'CASCADE',  // Options when Shop is updated
-      onDelete: 'SET NULL', // What to do when Shop is deleted
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
       allowNull: true,
     },
     offer_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Offers', // Reference to the Offers table
-        key: 'Offer_ID', // The primary key in the Offers table
+        model: 'Offers',
+        key: 'Offer_ID',
       },
-      onUpdate: 'CASCADE',  // Update cascading behavior
-      onDelete: 'SET NULL', // Delete cascading behavior
-      allowNull: true,      // Allow null for items without offers
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+      allowNull: true,
     },
   },
 );
