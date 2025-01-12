@@ -13,6 +13,10 @@ router.patch('/updatePhoneNumber', userController.updatePhoneNumber);
 router.patch('/updateUserLocation', userController.updateUserLocation);
 
 router.use(authController.protect);
+//for the notifications
+router.post('/updateToken', userController.updateToken);
+//for the notifications
+
 router.patch('/updatePassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
 router.patch('/updateMe', userController.updateMe);

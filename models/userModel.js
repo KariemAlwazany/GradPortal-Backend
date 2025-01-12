@@ -82,6 +82,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true, // Set allowNull to true as this might not always be provided
     },
+    token: {
+      type: DataTypes.STRING,
+      allowNull: true, // Allow null to handle cases where the user might not have a token yet
+    },
     // active: {
     //   type: Boolean,
     //   defaultValue: true,
@@ -96,6 +100,7 @@ const User = sequelize.define(
     ],
   },
 );
+
 
 User.beforeSave(async (user, options) => {
   if (user.changed('Password') || user.isNewRecord) {
