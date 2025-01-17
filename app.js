@@ -28,6 +28,7 @@ const cors = require('cors');
 const favoriteItemsRouter = require('./routes/favoriteItemsRouter');
 const communityRouter = require('./routes/communityRouter');
 const ratingRouter = require('./routes/ratingRouter');
+const notificationRouter = require('./routes/notificationRouter');
 
 const app = express();
 
@@ -79,6 +80,7 @@ app.use('/GP/v1/buyRequests', buyRequestsRouter);
 app.use('/GP/v1/orders', ordersRouter);
 app.use('/GP/v1/community', communityRouter);
 app.use('/GP/v1/shop/ratings', ratingRouter);
+app.use('/GP/v1/notification', notificationRouter);
 
 // Handle undefined routes
 app.all('*', (req, res, next) => {

@@ -1,4 +1,9 @@
 const dotenv = require('dotenv');
+const admin = require('firebase-admin');
+
+admin.initializeApp({
+  credential: admin.credential.cert(require('../SW_GP/utils/serviceAccountKey.json')),
+});
 
 process.on('uncaughtException', (err) => {
   console.log('UNCAUGHT EXCEPTION! Shutting down...');
