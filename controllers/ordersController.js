@@ -310,6 +310,8 @@ const createOrder = catchAsync(async (req, res, next) => {
   
           // Lower the item's quantity
           item.Quantity -= orderItem.quantity;
+          console.log(orderItem.quantity);
+          console.log(item.quantity);
           await item.save();
         }
   
