@@ -10,6 +10,7 @@ router.post('/createPost', upload.single('image'), community.createPost);
 router.post('/addComment/:postId', community.addComment);
 router.post('/addLike/:postId', community.addLike);
 router.post('/removeLike/:postId', community.removeLike);
+router.post('/shareItem', upload.single('image'), community.shareItem);
 
 router.patch('/editPost/:id', community.editPost);
 router.patch('/editComment/:id', community.editComment);

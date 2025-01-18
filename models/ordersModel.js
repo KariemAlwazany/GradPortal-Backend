@@ -30,6 +30,14 @@ const Orders = sequelize.define('Orders', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  delivery_method: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  delivery_location: {
+    type: DataTypes.JSON, // Store as a JSON object with longitude, latitude, and city
+    allowNull: false,
+  },
   created_at: {
     type: DataTypes.DATE,
     allowNull: false,
