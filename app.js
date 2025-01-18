@@ -89,8 +89,8 @@ app.use('/GP/v1/notification', notificationRouter);
 app.use('/GP/v1/table', tableRouter);
 app.use('/GP/v1/room', roomRouter);
 app.use('/GP/v1/manage', manageRouter);
-
 app.use('/GP/v1/remove-partner', removePartnerRouter);
+
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

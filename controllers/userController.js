@@ -306,8 +306,108 @@ exports.updateToken = async (req, res) => {
   }
 };
 
+
+
+
+const searchUsers = async (req, res) => {
+  try {
+    const { query } = req.query;
+
+    // Validate the query parameter
+    if (!query || query.trim() === '') {
+      return res.status(400).json({ error: 'Query parameter is required' });
+    }
+
+    // Search users by Username or FullName (case-insensitive)
+    const users = await User.findAll({
+      where: {
+        [Op.or]: [
+          { Username: { [Op.iLike]: `%${query}%` } },
+          { FullName: { [Op.iLike]: `%${query}%` } },
+        ],
+      },
+      attributes: ['id', 'Username', 'FullName'], // Return only necessary fields
+    });
+
+    // Return the search results
+    res.status(200).json({
+      message: 'Users retrieved successfully',
+      users,
+    });
+  } catch (error) {
+    console.error('Error searching users:', error);
+    res.status(500).json({ error: 'Failed to search users' });
+  }
+};
+
+
+
+
+const updateUser = catchAsync(async (req, res, next) => {
+  const { id } = req.user; // Retrieve user ID from the authenticated user
+  const {
+    Username,
+    FullName,
+    Email,
+    Password,
+    phone_number,
+    longitude,
+    latitude,
+    city,
+  } = req.body;
+
+  // Find the user by ID
+  const user = await User.findOne({
+    where: { id },
+  });
+
+  if (!user) {
+    return next(new AppError('No user found with the given ID', 404));
+  }
+
+  const updates = {};
+
+  // Add fields to update if provided in the request
+  if (Username) updates.Username = Username;
+  if (FullName) updates.FullName = FullName;
+  if (Email) updates.Email = Email;
+  if (phone_number) updates.phone_number = phone_number;
+  if (longitude) updates.longitude = longitude;
+  if (latitude) updates.latitude = latitude;
+  if (city) updates.city = city;
+
+  if (Password) {
+    const bcrypt = require('bcryptjs');
+    updates.Password = await bcrypt.hash(Password, 12); // Hash the new password
+  }
+
+  // If there are no fields to update, return an error
+  if (Object.keys(updates).length === 0) {
+    return next(new AppError('No fields to update provided', 400));
+  }
+
+  // Update the user record
+  const [updatedRows] = await User.update(updates, {
+    where: { id },
+  });
+
+  if (updatedRows === 0) {
+    return next(new AppError('Failed to update the user record', 500));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    message: 'User updated successfully',
+    data: {
+      user: updates,
+    },
+  });
+});
+
+exports.updateUsers = updateUser;
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 exports.updateUserLocation = updateUserLocation;
+exports.searchUsers = searchUsers;

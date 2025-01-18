@@ -20,8 +20,10 @@ router.patch('/updatePassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
 router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);
+router.patch('/updateUsers', userController.updateUsers);
 
 // router.use(authController.restrictTo('admin'));
+router.get('/search', userController.searchUsers);
 router.get('/', userController.getAllUsers);
 router.get('/doctors', userController.getDoctors);
 router.get('/doctors/count', userController.getDoctorsCount);
