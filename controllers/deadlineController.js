@@ -2,6 +2,8 @@ const db = require('./../models/deadlinesModel');
 const db1 = require('./../models/userModel');
 const db2 = require('./../models/reservationModel');
 const catchAsync = require('./../utils/catchAsync');
+const { Sequelize } = require('sequelize');
+
 const Deadline = db.Deadline;
 const User = db1.User;
 const Reservation = db2.Reservation;
@@ -33,7 +35,7 @@ getStudentDeadlines = catchAsync(async (req, res, next) => {
 
   const deadLines = await Deadline.findAll({
     where: {
-      Doctor: doctor.Doctor,
+      [Sequelize.Op.or]: [{ Doctor: doctor.Doctor }, { Doctor: 'Head' }],
     },
   });
   res.status(200).json({

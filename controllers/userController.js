@@ -85,7 +85,18 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
     message: 'Deleted',
   });
 });
+exports.deleteUserByUserName = catchAsync(async (req, res, next) => {
+  await User.destroy({
+    where: {
+      Usernmae: req.params.Username,
+    },
+  });
 
+  res.status(204).json({
+    status: 'success',
+    message: 'Deleted',
+  });
+});
 exports.changeHeadDoctor = catchAsync(async (req, res, next) => {
   const { currentHead, newHead } = req.body;
   const doctor = await User.update(

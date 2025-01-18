@@ -188,6 +188,41 @@ const getStudentMeetings = catchAsync(async (req, res, next) => {
     },
   });
 });
+const getStudentMeeting = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const user = await User.findOne({ where: { id: userId } });
+  const username = user.Username;
+  const project = await Projects.findOne({
+    where: {
+      [Sequelize.Op.or]: [{ Student_1: username }, { Student_2: username }],
+    },
+  });
+
+  const meetings = await Meeting.findAll({
+    where: {
+      [Sequelize.Op.and]: [
+        {
+          [Sequelize.Op.or]: [
+            { Student_1: username },
+            { Student_2: username },
+            { Student_1: 'All' },
+            { Student_1: project.GP_Type },
+          ],
+        },
+
+        ,
+        { Status: 'Approved' },
+      ],
+    },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      meetings,
+    },
+  });
+});
 const endMeeting = catchAsync(async (req, res, next) => {
   const id = req.body.id;
   console.log(req.body);
@@ -276,4 +311,6 @@ module.exports = {
   endMeeting,
   editMeeting,
   cancleMeeting,
+
+  getStudentMeeting,
 };

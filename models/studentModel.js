@@ -23,6 +23,34 @@ const Student = sequelize.define(
       allowNull: false,
       defaultValue: 'start',
     },
+    GP_Type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    Age: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    Gender: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    BE: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    FE: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    DB: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    City: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     tableName: 'Students', // Specifies actual table name in the database

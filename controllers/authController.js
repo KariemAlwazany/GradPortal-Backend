@@ -10,6 +10,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('./../utils/email');
 const { Op } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 const User = db.User;
 const Student = db1.Student;
@@ -69,6 +70,14 @@ exports.signup = catchAsync(async (req, res, next) => {
       Username: Username,
       Registration_number: req.body.registrationNumber,
       Degree: Degree,
+      GP_Type: req.body.GP_Type,
+      Age: req.body.Age,
+      Gender: req.body.Gender,
+      Status: 'start',
+      BE: req.body.BE,
+      FE: req.body.FE,
+      DB: req.body.DB,
+      City: req.body.City,
     });
   } else if (Role == 'Doctor') {
     const newDoctor = await Doctor.create({
@@ -78,27 +87,24 @@ exports.signup = catchAsync(async (req, res, next) => {
       Role: Role,
     });
   } else if (Role === 'Seller') {
-      const newSeller = await Seller.create({
-        Username: Username,
-        Phone_number: req.body.phoneNumber,
-        Shop_name: req.body.shopName,
-      });
-      const newShop = await Shop.create({
-        shop_name: req.body.shopName,
-        Seller_Username: Username, 
-      });
-      
-  
-      res.status(201).json({
-        message: 'Seller and shop created successfully',
-        seller: newSeller,
-        shop: newShop,
-      });
+    const newSeller = await Seller.create({
+      Username: Username,
+      Phone_number: req.body.phoneNumber,
+      Shop_name: req.body.shopName,
+    });
+    const newShop = await Shop.create({
+      shop_name: req.body.shopName,
+      Seller_Username: Username,
+    });
+
+    res.status(201).json({
+      message: 'Seller and shop created successfully',
+      seller: newSeller,
+      shop: newShop,
+    });
 
     console.log(req.body.shopName);
-
-  }
-  else if (Role === 'Delivery') {
+  } else if (Role === 'Delivery') {
     const newDelivery = await DeliveryUser.create({
       Username: Username,
       PhoneNumber: req.body.phoneNumber,
@@ -264,8 +270,11 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 exports.changePassword = catchAsync(async (req, res, next) => {
   const { password, email } = req.body;
   console.log(req.body);
+  const saltRounds = 12; // Number of rounds for hashing
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
   const user = await User.update(
-    { Password: password },
+    { Password: hashedPassword },
     {
       where: { Email: email },
     },

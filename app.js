@@ -22,6 +22,13 @@ const shopRouter = require('./routes/shopRouter');
 const buyRequestsRouter = require('./routes/buyRequestsRouter');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
+const itemsRouter = require('./routes/itemsRouter');
+const shopRouter = require('./routes/shopRouter');
+const tableRouter = require('./routes/tableRouter');
+const roomRouter = require('./routes/roomRouter');
+const removePartnerRouter = require('./routes/removePartnerRouter');
+
+const manageRouter = require('./routes/manageRouter');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -81,8 +88,11 @@ app.use('/GP/v1/orders', ordersRouter);
 app.use('/GP/v1/community', communityRouter);
 app.use('/GP/v1/shop/ratings', ratingRouter);
 app.use('/GP/v1/notification', notificationRouter);
+app.use('/GP/v1/table', tableRouter);
+app.use('/GP/v1/room', roomRouter);
+app.use('/GP/v1/manage', manageRouter);
 
-// Handle undefined routes
+app.use('/GP/v1/remove-partner', removePartnerRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

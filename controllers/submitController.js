@@ -1,18 +1,22 @@
 const db = require('./../models/submitModel');
 const db1 = require('./../models/userModel');
-const db2 = require('./../models/projectsModel');
 const db3 = require('./../models/doctorModel');
+
+const db4 = require('./../models/projectsModel');
+const db2 = require('./../models/deadlinesModel');
 const catchAsync = require('./../utils/catchAsync');
 const { sequelize } = require('./../models'); // Import sequelize correctly from your models/index.js
+const { Sequelize } = require('sequelize'); // Ensure Sequelize is imported
 
 const Submit = db.Submit;
 const User = db1.User;
 const Doctor = db3.Doctor;
-const Projects = db2.Projects;
+const Deadline = db2.Deadline;
+const Projects = db4.Projects;
 
 const studentSubmit = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
-
+  console.log(req.body);
   const user = await User.findOne({ where: { id: userID } });
   const username = user.Username;
   const { Date, FileSubmitted, Title, TaskID, Doctor } = req.body;
@@ -121,8 +125,69 @@ const getSubmissionsForDoctor = catchAsync(async (req, res, next) => {
   });
 });
 
+const getFinalSubmission = catchAsync(async (req, res, next) => {
+  const student = req.params.student;
+  const task = await Deadline.findOne({ where: { Title: 'Final Submission' } });
+  if (!task) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Final Submission deadline not found.',
+    });
+  }
+  const findSubmit = await Submit.findOne({
+    where: { Student: student, TaskID: task.id },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      findSubmit,
+    },
+  });
+});
+const getAbstractSubmission = catchAsync(async (req, res, next) => {
+  const student = req.params.student;
+  const task = await Deadline.findOne({
+    where: { Title: 'Abstract Submission' },
+  });
+  const findSubmit = await Submit.findOne({
+    where: { Student: student, TaskID: task.id },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      findSubmit,
+    },
+  });
+});
+const getProjects = catchAsync(async (req, res, next) => {
+  const GP_ID = req.params.id;
+  const project = await Projects.findOne({
+    where: { GP_ID: GP_ID, done: 'yes' },
+  });
+
+  const submission = await Submit.findAll({
+    where: {
+      [Sequelize.Op.or]: [
+        { Student: project.Student_1 },
+        { Student: project.Student_2 },
+      ],
+      [Sequelize.Op.or]: [
+        { Title: 'Abstract Submission' },
+        { Title: 'Final Submission' },
+      ],
+    },
+  });
+  res.status(200).json({
+    status: 'success',
+    data: submission,
+  });
+});
+
 module.exports = {
   studentSubmit,
   getSubmission,
   getSubmissionsForDoctor,
+  getFinalSubmission,
+  getAbstractSubmission,
+  getProjects,
 };

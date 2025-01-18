@@ -19,7 +19,7 @@ const CurrentStudent = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ where: { id: userId } });
   username = user.Username;
   const student = await Student.findOne({ where: { Username: username } });
-  res.status(201).send(student);
+  res.status(200).send(student);
 });
 const getStudent = catchAsync(async (req, res, next) => {
   const username = req.params.username;
@@ -40,10 +40,51 @@ const getAllStudents = catchAsync(async (req, res, next) => {
 
   res.status(200).send(allStudents);
 });
+const updateStudent = catchAsync(async (req, res, next) => {
+  const id = req.user.id;
+  const user = await User.findOne({ where: { id: id } });
+  const username = user.Username;
+  const student = await Student.update(req.body, {
+    where: { Username: username },
+  });
+  res.status(200).send(student);
+});
+const getNotPartneredStudents = catchAsync(async (req, res, next) => {
+  const username = req.params.username;
+  console.log(username);
+  const student = await Student.findAll({
+    where: { Username: { [Sequelize.Op.ne]: username }, Status: 'start' },
+  });
 
+  res.status(200).send(student);
+});
+const getNotPartneredStudentsWithoutTheCurrent = catchAsync(
+  async (req, res, next) => {
+    const id = req.user.id;
+    const user = await User.findOne({ where: { id: id } });
+    const username = user.Username;
+    const findGPType = await Student.findOne({ where: { username: username } });
+    console.log(username);
+    const student = await Student.findAll({
+      where: {
+        Username: { [Sequelize.Op.ne]: username },
+
+        Status: {
+          [Sequelize.Op.or]: ['start', 'waitpartner', 'declinepartner'], // Match specified statuses
+        },
+        GP_Type: findGPType.GP_Type,
+      },
+    });
+
+    res.status(200).send(student);
+  },
+);
 module.exports = {
   CurrentStudent,
   getAllStudents,
   getStudent,
   getAll,
+  updateStudent,
+  getNotPartneredStudents,
+  getNotPartneredStudentsWithoutTheCurrent,
 };
