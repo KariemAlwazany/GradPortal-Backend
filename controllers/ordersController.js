@@ -7,95 +7,148 @@ const {User} = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken'); 
 const sendEmail = require('../utils/email');
+const axios = require('axios');
+
+
 
 const createOrder = catchAsync(async (req, res, next) => {
-    const userID = req.user.id;
-    const { totalPrice, paymentMethod, deliveryLocation } = req.body;
-  
-    if (!totalPrice || !paymentMethod) {
-      return res.status(400).json({ message: 'Invalid order details' });
+  const userID = req.user.id;
+  const { totalPrice, paymentMethod, deliveryLocation, delivery_method } = req.body;
+
+  // Normalize deliveryMethod
+  const deliveryMethod = delivery_method || req.body.deliveryMethod;
+
+  console.log(req.body); // Log request body for debugging
+  console.log('Delivery Method:', deliveryMethod); // Log delivery method
+
+  // Validate required fields
+  if (
+    !totalPrice ||
+    !paymentMethod ||
+    !deliveryMethod ||
+    !deliveryLocation ||
+    !deliveryLocation.latitude ||
+    !deliveryLocation.longitude
+  ) {
+    return res.status(400).json({ message: 'Invalid order details' });
+  }
+
+  try {
+    // Use reverse geocoding to get the city
+    const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${deliveryLocation.latitude},${deliveryLocation.longitude}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    const geocodingResponse = await axios.get(geocodingUrl);
+
+    if (geocodingResponse.data.status !== 'OK') {
+      console.error('Geocoding API error:', geocodingResponse.data);
+      return next(new AppError('Failed to get the city from coordinates!', 500));
     }
-  
-    try {
-      const cart = await Cart.findOne({
-        where: { user_id: userID },
-        include: [
-          {
-            model: Items,
-            as: 'ItemsInCart',
-            through: {
-              attributes: ['quantity', 'price'],
-            },
-            attributes: ['Item_ID', 'item_name', 'price', 'description', 'Picture', 'Shop_name'],
+
+    const addressComponents = geocodingResponse.data.results[0]?.address_components || [];
+    const cityComponent = addressComponents.find((component) =>
+      component.types.includes('locality')
+    ) || addressComponents.find((component) =>
+      component.types.includes('administrative_area_level_1')
+    );
+
+    if (!cityComponent) {
+      console.error('City not found in geocoding response:', addressComponents);
+      return next(new AppError('City not found in geocoding response!', 404));
+    }
+
+    const city = cityComponent.long_name;
+
+    // Fetch the user's cart
+    const cart = await Cart.findOne({
+      where: { user_id: userID },
+      include: [
+        {
+          model: Items,
+          as: 'ItemsInCart',
+          through: {
+            attributes: ['quantity', 'price'],
           },
-        ],
-      });
-  
-      if (!cart || !cart.ItemsInCart || cart.ItemsInCart.length === 0) {
-        return res.status(404).json({ message: 'Cart is empty or not found' });
-      }
-  
-      for (const item of cart.ItemsInCart) {
-        if (item.Shop_name) {
-          const seller = await Sellers.findOne({
-            where: { shop_name: item.Shop_name },
-            attributes: ['id'],
-          });
-          if (!seller) {
-            return res.status(404).json({
-              message: `Shop owner for ${item.Shop_name} not found.`,
-            });
-          }
-          item.shopOwnerId = seller.id;
-        } else {
-          return res.status(400).json({
-            message: `Shop name is missing for item ${item.item_name}.`,
+          attributes: ['Item_ID', 'item_name', 'price', 'description', 'Picture', 'Shop_name'],
+        },
+      ],
+    });
+
+    if (!cart || !cart.ItemsInCart || cart.ItemsInCart.length === 0) {
+      return res.status(404).json({ message: 'Cart is empty or not found' });
+    }
+
+    // Map shop owners to items in the cart
+    for (const item of cart.ItemsInCart) {
+      if (item.Shop_name) {
+        const seller = await Sellers.findOne({
+          where: { shop_name: item.Shop_name },
+          attributes: ['id'],
+        });
+        if (!seller) {
+          return res.status(404).json({
+            message: `Shop owner for ${item.Shop_name} not found.`,
           });
         }
-      }
-  
-      const order = await Orders.create({
-        buyer_id: userID,
-        total_price: totalPrice,
-        payment_method: paymentMethod,
-        status: 'pending',
-      });
-  
-      const groupedItems = {};
-      for (const item of cart.ItemsInCart) {
-        const shopOwnerId = item.shopOwnerId;
-        if (!groupedItems[shopOwnerId]) groupedItems[shopOwnerId] = [];
-        groupedItems[shopOwnerId].push({
-          order_id: order.order_id,
-          item_id: item.Item_ID,
-          quantity: item.CartItems.quantity,
-          price: item.CartItems.price,
+        item.shopOwnerId = seller.id;
+      } else {
+        return res.status(400).json({
+          message: `Shop name is missing for item ${item.item_name}.`,
         });
       }
-  
-      // Step 5: Notify each shop owner and create OrderItems
-      for (const shopOwnerId in groupedItems) {
-        const itemsForShopOwner = groupedItems[shopOwnerId];
-  
-        // Create order items for the shop owner
-        await OrderItems.bulkCreate(itemsForShopOwner);
-  
-        console.log(`Shop owner ${shopOwnerId} has received a new order.`);
-      }
-  
-      res.status(201).json({
-        message: 'Order created successfully',
-        order,
-      });
-    } catch (error) {
-      console.error('Error creating order:', error);
-      res.status(500).json({
-        message: 'Failed to create order',
-        error: error.message,
+    }
+
+    // Create the order with delivery details
+    const order = await Orders.create({
+      buyer_id: userID,
+      total_price: totalPrice,
+      payment_method: paymentMethod,
+      delivery_method: deliveryMethod, // Use normalized deliveryMethod
+      delivery_location: {
+        latitude: deliveryLocation.latitude,
+        longitude: deliveryLocation.longitude,
+      }, // Save delivery location
+      city, // Save city dynamically retrieved from Google API
+      status: 'pending',
+    });
+
+    // Group items by shop owner
+    const groupedItems = {};
+    for (const item of cart.ItemsInCart) {
+      const shopOwnerId = item.shopOwnerId;
+      if (!groupedItems[shopOwnerId]) groupedItems[shopOwnerId] = [];
+      groupedItems[shopOwnerId].push({
+        order_id: order.order_id,
+        item_id: item.Item_ID,
+        quantity: item.CartItems.quantity,
+        price: item.CartItems.price,
       });
     }
-  });
-  
+
+    // Notify each shop owner and create OrderItems
+    for (const shopOwnerId in groupedItems) {
+      const itemsForShopOwner = groupedItems[shopOwnerId];
+
+      // Create order items for the shop owner
+      await OrderItems.bulkCreate(itemsForShopOwner);
+
+      console.log(`Shop owner ${shopOwnerId} has received a new order.`);
+    }
+
+    res.status(201).json({
+      message: 'Order created successfully',
+      order,
+    });
+  } catch (error) {
+    console.error('Error creating order:', error);
+    res.status(500).json({
+      message: 'Failed to create order',
+      error: error.message,
+    });
+  }
+});
+
+
+
+
 
 
 
@@ -743,6 +796,60 @@ const respondToOrder = async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
+
+
+
+
+
+const getCompletedOrdersForDelivery = async (req, res, next) => {
+  try {
+    // Fetch completed orders with delivery method as 'delivery'
+    const completedOrders = await Orders.findAll({
+      where: { 
+        status: 'completed', 
+        delivery_method: 'Delivery', // Only orders with delivery method 'delivery'
+      },
+      include: [
+        {
+          model: OrderItems,
+          as: 'OrderItemsList', // Use the alias defined in associations
+          include: [
+            {
+              model: Items,
+              as: 'OrderedItem', // Use the alias defined in associations
+              attributes: ['item_name', 'description', 'price', 'Picture', 'Shop_name'],
+            },
+          ],
+        },
+      ],
+      attributes: [
+        'order_id',
+        'buyer_id',
+        'total_price',
+        'payment_method',
+        'delivery_method',
+        'delivery_location', // Include delivery_location field
+        'created_at',
+      ],
+      order: [['created_at', 'DESC']], // Sort by most recent orders
+    });
+
+    if (!completedOrders || completedOrders.length === 0) {
+      return res.status(404).json({ message: 'No completed delivery orders found' });
+    }
+
+    res.status(200).json({
+      message: 'Completed delivery orders retrieved successfully',
+      orders: completedOrders,
+    });
+  } catch (error) {
+    console.error('Error fetching completed delivery orders:', error);
+    res.status(500).json({
+      message: 'Failed to fetch completed delivery orders',
+      error: error.message,
+    });
+  }
+};
 exports.createOrder = createOrder;
 exports.getOrdersForSeller = getOrdersForSeller;
 exports.updateOrderStatus = updateOrderStatus;
@@ -752,6 +859,7 @@ exports.getCompletedOrdersForSeller = getCompletedOrdersForSeller;
 exports.getRejectedOrdersForSeller = getRejectedOrdersForSeller;
 exports.checkoutOrder = checkoutOrder;
 exports.respondToOrder = respondToOrder;
+exports.getCompletedOrdersForDelivery = getCompletedOrdersForDelivery;
 
 
   

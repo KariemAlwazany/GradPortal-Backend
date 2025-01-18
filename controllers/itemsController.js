@@ -256,17 +256,25 @@ const updateItem = async (req, res) => {
 const searchItems = async (req, res) => {
   try {
     const searchQuery = req.query.item_name;
+    const category = req.query.category;
 
     if (!searchQuery) {
       return res.status(400).json({ message: 'Search query cannot be empty' });
     }
-    const items = await Items.findAll({
-      where: {
-        item_name: {
-          [Sequelize.Op.like]: `%${searchQuery}%`,
-        },
-        Available: true,
+
+    const whereCondition = {
+      item_name: {
+        [Sequelize.Op.like]: `%${searchQuery}%`,
       },
+      Available: true,
+    };
+
+    if (category) {
+      whereCondition.category = category; // Add category filter
+    }
+
+    const items = await Items.findAll({
+      where: whereCondition,
     });
 
     if (items.length === 0) {
@@ -291,6 +299,7 @@ const searchItems = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
 

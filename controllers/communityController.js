@@ -221,10 +221,6 @@ const deleteComment = async (req, res, next) => {
 
 
 
-
-
-
-
 const editPost = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -278,8 +274,6 @@ const editPost = async (req, res, next) => {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
-
-
 
 
 
@@ -343,8 +337,6 @@ const editComment = async (req, res, next) => {
     res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 };
-
-
 
 
 
@@ -514,6 +506,38 @@ const getAllUsers = async (req, res, next) => {
 
   res.status(200).send(user);
 };
+
+
+
+
+
+const shareItem = async (req, res, next) => {
+  try {
+    const { content } = req.body;
+    const image = req.file ? req.file.buffer : null;
+
+    if (!req.user || !req.user.Username) {
+      return next(new AppError('User information not found in request', 400));
+    }
+
+    const createdBy = req.user.Username;
+
+    const post = await Post.create({
+      content,
+      image,
+      createdBy,
+      sharedBy: null,
+      originalPostId: null,
+      likes: 0,
+    });
+
+    res.status(201).json({ message: 'Post created successfully', post });
+  } catch (error) {
+    console.error('Error creating post:', error);
+    next(error);
+  }
+};
+
 exports.createPost = createPost;
 exports.getAllPosts = getAllPosts;
 exports.addComment = addComment;
@@ -528,3 +552,4 @@ exports.addLike = addLike;
 exports.countLikes = countLikes;
 exports.removeLike = removeLike;
 exports.getAllUsers = getAllUsers;
+exports.shareItem = shareItem;

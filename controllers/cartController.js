@@ -106,11 +106,13 @@ const deleteFromCart = catchAsync(async (req, res, next) => {
   const getCart = catchAsync(async (req, res, next) => {
     const userID = req.user.id;
   
+    // Validate user existence
     const user = await User.findOne({ where: { id: userID } });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
   
+    // Fetch the cart details
     const cart = await Cart.findOne({
       where: { user_id: userID },
       include: [
@@ -128,11 +130,19 @@ const deleteFromCart = catchAsync(async (req, res, next) => {
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
-      res.status(200).json({
+  
+    // Calculate the total count of items in the cart
+    const totalItemCount = cart.ItemsInCart.reduce((total, item) => {
+      return total + (item.CartItems.quantity || 0);
+    }, 0);
+  
+    res.status(200).json({
       message: 'Cart fetched successfully',
       cart,
+      totalItemCount, // Include the total count in the response
     });
   });
+  
   
   
 
