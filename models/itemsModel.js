@@ -1,13 +1,17 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('.');
-const Sellers = require('./sellerModel.js');
 
 const Items = sequelize.define(
   'Items',
   {
+    Item_ID: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false,
+    },
     item_name: {
       type: DataTypes.STRING,
-      primaryKey: true,
       allowNull: false,
     },
     Quantity: {
@@ -29,34 +33,37 @@ const Items = sequelize.define(
     Available: {
       type: DataTypes.BOOLEAN,
       allowNull: true,
-      defaultValue: false
+      defaultValue: true,
     },
     Picture: {
-      type: DataTypes.BLOB('long'),  // Store the picture URL or path
+      type: DataTypes.BLOB('long'),
+      allowNull: false,
+    },
+    Category: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     Shop_name: {
       type: DataTypes.STRING,
       references: {
-        model: 'Sellers', // The name of the referenced table
-        key: 'Shop_name',      // The primary key in the Shop table
+        model: 'Sellers',
+        key: 'Shop_name',
       },
-      onUpdate: 'CASCADE',  // Options when Shop is updated
-      onDelete: 'SET NULL', // What to do when Shop is deleted
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+      allowNull: true,
+    },
+    offer_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Offers',
+        key: 'Offer_ID',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
       allowNull: true,
     },
   },
-  {
-    indexes: [{ unique: true, fields: ['item_name'] }],
-  },
-  
 );
-// Defining the relationship
-Items.associate = function(models) {
-  Items.belongsTo(models.Sellers, {
-    foreignKey: 'Shop_name',
-    as: 'shop',
-  });
-};
 
 module.exports = Items;

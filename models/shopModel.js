@@ -17,32 +17,18 @@ const Shop = sequelize.define(
         key: 'Username',
       },
       onUpdate: 'CASCADE',
-      onDelete: 'SET NULL', // Allows setting to NULL when the referenced seller is deleted
-      allowNull: true, // MUST allow NULL to support 'SET NULL'
+      onDelete: 'SET NULL',
+      allowNull: true, 
     },
-    Telephone: {
+    status: {
       type: DataTypes.STRING,
       allowNull: true,
-    },
-    longitude: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-    },
-    latitude: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
+      defaultValue: 'open',
     },
   },
   {
     indexes: [{ unique: true, fields: ['shop_name'] }],
   },
 );
-
-Shop.associate = function (models) {
-  Shop.belongsTo(models.Sellers, {
-    foreignKey: 'Seller_Username',
-    as: 'seller',
-  });
-};
 
 module.exports = Shop;

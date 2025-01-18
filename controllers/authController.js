@@ -5,6 +5,7 @@ const db = require('./../models/userModel');
 const db1 = require('./../models/studentModel');
 const db2 = require('./../models/doctorModel');
 const db3 = require('./../models/sellerModel');
+const db4 = require('./../models/shopModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('./../utils/email');
@@ -15,6 +16,7 @@ const User = db.User;
 const Student = db1.Student;
 const Doctor = db2.Doctor;
 const Seller = db3;
+const Shop = db4;
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -49,7 +51,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     req.body;
   console.log(req.body);
   approval = 'true';
-  if (Role == 'Doctor' || Role == 'Seller') {
+  if (Role == 'Doctor' || Role == 'Seller' || Role == 'Delivery') {
     approval = 'true';
   }
   const newUser = await User.create({
@@ -84,13 +86,36 @@ exports.signup = catchAsync(async (req, res, next) => {
       Degree: Degree,
       Role: Role,
     });
-  } else if (Role == 'Seller') {
+  } else if (Role === 'Seller') {
     const newSeller = await Seller.create({
       Username: Username,
       Phone_number: req.body.phoneNumber,
       Shop_name: req.body.shopName,
     });
-    console.log(req.body);
+    const newShop = await Shop.create({
+      shop_name: req.body.shopName,
+      Seller_Username: Username,
+    });
+
+    res.status(201).json({
+      message: 'Seller and shop created successfully',
+      seller: newSeller,
+      shop: newShop,
+    });
+
+    console.log(req.body.shopName);
+  } else if (Role === 'Delivery') {
+    const newDelivery = await DeliveryUser.create({
+      Username: Username,
+      PhoneNumber: req.body.phoneNumber,
+    });
+
+    res.status(201).json({
+      message: 'Delivery user created successfully',
+      deliveryUser: newDelivery,
+    });
+
+    console.log(req.body.phoneNumber);
   }
   createSendToken(newUser, 201, res);
 });

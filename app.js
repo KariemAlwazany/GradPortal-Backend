@@ -15,6 +15,11 @@ const projectsRouter = require('./routes/projectsRouter');
 const favProjectsRouter = require('./routes/favProjectsRouter');
 const meetingsRouter = require('./routes/meetingsRouter');
 const messagesRouter = require('./routes/messagesRouter');
+const itemsRouter = require('./routes/itemsRouter');
+const cartRouter = require('./routes/cartRouter');
+const ordersRouter = require('./routes/ordersRouter');
+const shopRouter = require('./routes/shopRouter');
+const buyRequestsRouter = require('./routes/buyRequestsRouter');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
 const itemsRouter = require('./routes/itemsRouter');
@@ -27,6 +32,10 @@ const manageRouter = require('./routes/manageRouter');
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const cors = require('cors');
+const favoriteItemsRouter = require('./routes/favoriteItemsRouter');
+const communityRouter = require('./routes/communityRouter');
+const ratingRouter = require('./routes/ratingRouter');
+const notificationRouter = require('./routes/notificationRouter');
 
 const app = express();
 
@@ -50,7 +59,7 @@ app.use(express.json({ limit: '50mb' }));
 
 // Rate limiting to prevent abuse
 const limiter = rateLimit({
-  max: 100,
+  max: 1000,
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP, please try again in an hour!',
 });
@@ -71,7 +80,14 @@ app.use('/GP/v1/deadlines', deadlineRouter);
 app.use('/GP/v1/submit', submitRouter);
 app.use('/GP/v1/messages', messagesRouter);
 app.use('/GP/v1/seller/items', itemsRouter);
-app.use('/GP/v1/seller/shop', shopRouter);
+app.use('/GP/v1/shop', shopRouter);
+app.use('/GP/v1/shop/cart', cartRouter);
+app.use('/GP/v1/shop/favoriteItems', favoriteItemsRouter);
+app.use('/GP/v1/buyRequests', buyRequestsRouter);
+app.use('/GP/v1/orders', ordersRouter);
+app.use('/GP/v1/community', communityRouter);
+app.use('/GP/v1/shop/ratings', ratingRouter);
+app.use('/GP/v1/notification', notificationRouter);
 app.use('/GP/v1/table', tableRouter);
 app.use('/GP/v1/room', roomRouter);
 app.use('/GP/v1/manage', manageRouter);

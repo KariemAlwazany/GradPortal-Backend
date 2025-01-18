@@ -8,8 +8,14 @@ router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 router.patch('/changePassword', authController.changePassword);
+router.patch('/updatePhoneNumber', userController.updatePhoneNumber);
+router.patch('/updateUserLocation', userController.updateUserLocation);
 router.post('/signup', manageController.checkJoin, authController.signup);
 router.use(authController.protect);
+//for the notifications
+router.post('/updateToken', userController.updateToken);
+//for the notifications
+
 router.patch('/updatePassword', authController.updatePassword);
 router.get('/me', userController.getMe, userController.getUser);
 router.patch('/updateMe', userController.updateMe);

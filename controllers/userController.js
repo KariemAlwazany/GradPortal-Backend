@@ -2,8 +2,9 @@ const db = require('./../models/userModel');
 const factory = require('./factoryController');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
-
+const jwt = require('jsonwebtoken');
 const User = db.User;
+const axios = require('axios');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -167,7 +168,146 @@ exports.getNormalUserCount = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+exports.updatePhoneNumber = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+      return next(new AppError('You are not logged in!', 401));
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findOne({
+      where: { id: decoded.id },
+    });
+
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+
+    let { phone_number } = req.body;
+
+    console.log(`Current phone number: ${user.phone_number}, New phone number: ${phone_number}`);
+
+
+    user.phone_number = phone_number;
+    await user.save();
+
+    console.log(`Updated phone number: ${user.phone_number}`);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Phone number updated successfully',
+    });
+  } catch (err) {
+    console.error(err);
+    return next(new AppError('Something went wrong while updating phone number', 500));
+  }
+};
+
+
+
+
+const updateUserLocation = async (req, res, next) => {
+  try {
+    // Extract JWT token from headers
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return next(new AppError('You are not logged in!', 401));
+    }
+
+    // Decode the JWT token to get the user ID
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    // Find the user in the database
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return next(new AppError('User not found!', 404));
+    }
+
+    // Get latitude and longitude from the request body
+    const { latitude, longitude } = req.body;
+    if (!latitude || !longitude) {
+      return next(new AppError('Latitude and longitude are required!', 400));
+    }
+
+    // Use reverse geocoding to get the city
+    const geocodingUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+    const geocodingResponse = await axios.get(geocodingUrl);
+
+    if (geocodingResponse.data.status !== 'OK') {
+      console.error('Geocoding API error:', geocodingResponse.data);
+      return next(new AppError('Failed to get the city from coordinates!', 500));
+    }
+
+    const addressComponents = geocodingResponse.data.results[0]?.address_components || [];
+    const cityComponent = addressComponents.find((component) =>
+      component.types.includes('locality')
+    ) || addressComponents.find((component) =>
+      component.types.includes('administrative_area_level_1')
+    );
+
+    if (!cityComponent) {
+      console.error('City not found in geocoding response:', addressComponents);
+      return next(new AppError('City not found in geocoding response!', 404));
+    }
+
+    const city = cityComponent.long_name;
+
+    // Update user's location in the database
+    user.latitude = latitude;
+    user.longitude = longitude;
+    user.city = city;
+
+    await user.save();
+
+    // Send response
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user: {
+          id: user.id,
+          latitude: user.latitude,
+          longitude: user.longitude,
+          city: user.city,
+        },
+      },
+    });
+  } catch (error) {
+    next(error); // Pass error to global error handling middleware
+  }
+};
+
+// userController.js
+exports.updateToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+    const userId = req.user.id; 
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token is required' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.token = token;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Token updated successfully' });
+  } catch (error) {
+    console.error('Error updating token:', error.message);
+    res.status(500).json({ error: 'Failed to update token' });
+  }
+};
+
 exports.getUser = factory.getOne(User);
 exports.getAllUsers = factory.getAll(User);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
+exports.updateUserLocation = updateUserLocation;
