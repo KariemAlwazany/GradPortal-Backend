@@ -33,7 +33,10 @@ router.get('/normal/count', userController.getNormalUserCount);
 router.get('/headdoctor', userController.getHeadDoctor);
 router.patch('/change-head', userController.changeHeadDoctor);
 router.delete('/username/:Username', userController.deleteUserByUserName);
+router.get('/username/:Username', userController.getByUsername);
 router.get('/:id', userController.getUser);
+
+
 router.patch('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
 

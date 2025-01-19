@@ -1,9 +1,12 @@
 const db = require('./../models/userModel');
+
+const db1 = require('./../models/studentModel');
 const factory = require('./factoryController');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 const User = db.User;
+const Student = db1.Student;
 const axios = require('axios');
 
 const filterObj = (obj, ...allowedFields) => {
@@ -86,9 +89,14 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 exports.deleteUserByUserName = catchAsync(async (req, res, next) => {
+  await Student.destroy({
+    where: {
+      Username: req.params.Username,
+    },
+  });
   await User.destroy({
     where: {
-      Usernmae: req.params.Username,
+      Username: req.params.Username,
     },
   });
 
@@ -172,7 +180,7 @@ exports.getNormalUserCount = catchAsync(async (req, res, next) => {
 exports.updatePhoneNumber = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
-    
+
     if (!token) {
       return next(new AppError('You are not logged in!', 401));
     }
@@ -189,8 +197,9 @@ exports.updatePhoneNumber = async (req, res, next) => {
 
     let { phone_number } = req.body;
 
-    console.log(`Current phone number: ${user.phone_number}, New phone number: ${phone_number}`);
-
+    console.log(
+      `Current phone number: ${user.phone_number}, New phone number: ${phone_number}`,
+    );
 
     user.phone_number = phone_number;
     await user.save();
@@ -203,12 +212,11 @@ exports.updatePhoneNumber = async (req, res, next) => {
     });
   } catch (err) {
     console.error(err);
-    return next(new AppError('Something went wrong while updating phone number', 500));
+    return next(
+      new AppError('Something went wrong while updating phone number', 500),
+    );
   }
 };
-
-
-
 
 const updateUserLocation = async (req, res, next) => {
   try {
@@ -240,15 +248,20 @@ const updateUserLocation = async (req, res, next) => {
 
     if (geocodingResponse.data.status !== 'OK') {
       console.error('Geocoding API error:', geocodingResponse.data);
-      return next(new AppError('Failed to get the city from coordinates!', 500));
+      return next(
+        new AppError('Failed to get the city from coordinates!', 500),
+      );
     }
 
-    const addressComponents = geocodingResponse.data.results[0]?.address_components || [];
-    const cityComponent = addressComponents.find((component) =>
-      component.types.includes('locality')
-    ) || addressComponents.find((component) =>
-      component.types.includes('administrative_area_level_1')
-    );
+    const addressComponents =
+      geocodingResponse.data.results[0]?.address_components || [];
+    const cityComponent =
+      addressComponents.find((component) =>
+        component.types.includes('locality'),
+      ) ||
+      addressComponents.find((component) =>
+        component.types.includes('administrative_area_level_1'),
+      );
 
     if (!cityComponent) {
       console.error('City not found in geocoding response:', addressComponents);
@@ -285,7 +298,7 @@ const updateUserLocation = async (req, res, next) => {
 exports.updateToken = async (req, res) => {
   try {
     const { token } = req.body;
-    const userId = req.user.id; 
+    const userId = req.user.id;
 
     if (!token) {
       return res.status(400).json({ error: 'Token is required' });
@@ -299,11 +312,23 @@ exports.updateToken = async (req, res) => {
     user.token = token;
     await user.save();
 
-    res.status(200).json({ success: true, message: 'Token updated successfully' });
+    res
+      .status(200)
+      .json({ success: true, message: 'Token updated successfully' });
   } catch (error) {
     console.error('Error updating token:', error.message);
     res.status(500).json({ error: 'Failed to update token' });
   }
+};
+exports.getByUsername = async (req, res) => {
+  const username = req.params.Username;
+  const user = await User.findOne({ where: { Username: username } });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user,
+    },
+  });
 };
 
 

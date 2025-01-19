@@ -1,9 +1,11 @@
 const db = require('./../models/studentModel');
 const db1 = require('./../models/userModel');
+const db2 = require('./../models/reservationModel');
 const catchAsync = require('./../utils/catchAsync');
 const { Sequelize } = require('sequelize');
 const Student = db.Student;
 const User = db1.User;
+const Reservation = db2.Reservation;
 const getAll = catchAsync(async (req, res, next) => {
   const students = await Student.findAll();
   res.status(200).json({
@@ -79,6 +81,15 @@ const getNotPartneredStudentsWithoutTheCurrent = catchAsync(
     res.status(200).send(student);
   },
 );
+const getDoctorForCurrentStudent = catchAsync(async (req, res, next) => {
+  const id = req.user.id;
+  const user = await User.findOne({ where: { id: id } });
+  const reservation = await Reservation.findOne({
+    where: { Student: user.Username },
+  });
+
+  res.status(200).send(reservation);
+});
 module.exports = {
   CurrentStudent,
   getAllStudents,
@@ -87,4 +98,5 @@ module.exports = {
   updateStudent,
   getNotPartneredStudents,
   getNotPartneredStudentsWithoutTheCurrent,
+  getDoctorForCurrentStudent,
 };
