@@ -12,6 +12,7 @@ router.get(
   '/available',
   studentController.getNotPartneredStudentsWithoutTheCurrent,
 );
+router.get('/getDoctor', studentController.getDoctorForCurrentStudent);
 
 router.get('/available/:username', studentController.getNotPartneredStudents);
 

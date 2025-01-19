@@ -23,5 +23,8 @@ router.post(
   '/headDoctor/choose-doctor',
   doctorController.headDoctorChooseDoctor,
 );
-router.post('/headDoctor/resetApp', doctorController.headDoctorChooseDoctor);
+router.post(
+  '/head-doctor/resetApp',
+  doctorController.headDoctorResetApplication,
+);
 module.exports = router;

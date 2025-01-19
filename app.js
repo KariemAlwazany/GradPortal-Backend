@@ -15,10 +15,9 @@ const projectsRouter = require('./routes/projectsRouter');
 const favProjectsRouter = require('./routes/favProjectsRouter');
 const meetingsRouter = require('./routes/meetingsRouter');
 const messagesRouter = require('./routes/messagesRouter');
-const itemsRouter = require('./routes/itemsRouter');
+
 const cartRouter = require('./routes/cartRouter');
 const ordersRouter = require('./routes/ordersRouter');
-const shopRouter = require('./routes/shopRouter');
 const buyRequestsRouter = require('./routes/buyRequestsRouter');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
