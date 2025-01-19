@@ -852,6 +852,94 @@ const getCompletedOrdersForDelivery = async (req, res, next) => {
     });
   }
 };
+
+
+
+const calculateProfit = async (orderId) => {
+  try {
+    // Step 1: Fetch all order items for the given order ID
+    const orderItems = await OrderItems.findAll({
+      where: { order_id: orderId },
+      include: [
+        {
+          model: Items,
+          as: 'Item', // Use the alias defined in your associations
+          attributes: ['Shop_name', 'Price'],
+        },
+      ],
+    });
+
+    if (!orderItems || orderItems.length === 0) {
+      console.log('No items found for the given order ID.');
+      return {
+        totalSales: 0,
+        platformProfit: 0,
+        netEarnings: 0,
+      };
+    }
+
+    let totalSales = 0; // Total sales for "Students Shop" items
+    let platformProfit = 0; // Platform's 5% profit
+    let netEarnings = 0; // Seller's remaining earnings after profit deduction
+
+    // Step 2: Iterate through the items and calculate profit and earnings
+    for (const orderItem of orderItems) {
+      const { Item, quantity, price } = orderItem;
+
+      // Ensure the associated item exists and is from "Students Shop"
+      if (Item && Item.Shop_name === 'Students Shop') {
+        const itemTotal = price * quantity; // Total price for the item
+        const itemProfit = itemTotal * 0.05; // Platform's 5% profit
+        const itemEarnings = itemTotal - itemProfit; // Seller's net earnings
+
+        totalSales += itemTotal;
+        platformProfit += itemProfit;
+        netEarnings += itemEarnings;
+      }
+    }
+
+    // Return the breakdown
+    return {
+      totalSales,
+      platformProfit,
+      netEarnings,
+    };
+  } catch (error) {
+    console.error('Error calculating profit:', error);
+    throw error;
+  }
+};
+
+
+
+
+const getBuyerId = async (req, res) => {
+  const { orderId } = req.query; // Retrieve orderId from query parameters
+
+  if (!orderId) {
+    return res.status(400).json({ error: 'Order ID is required' });
+  }
+
+  try {
+    // Fetch the order with the specified orderId
+    const order = await Orders.findOne({
+      where: { order_id: orderId },
+      attributes: ['buyer_id'], // Only fetch the buyer_id field
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Return the buyer_id
+    res.status(200).json({ buyer_id: order.buyer_id });
+  } catch (error) {
+    console.error('Error fetching buyer ID:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the buyer ID' });
+  }
+};
+exports.getBuyerId = getBuyerId;
+exports.calculateProfit = calculateProfit;
 exports.createOrder = createOrder;
 exports.getOrdersForSeller = getOrdersForSeller;
 exports.updateOrderStatus = updateOrderStatus;
