@@ -14,6 +14,8 @@ const sendEmail = async (options) => {
       ciphers: 'SSLv3', // Add this for compatibility with certain SMTP servers
       rejectUnauthorized: false, // Allow self-signed certificates
     },
+    maxMessageSize: 32 * 1024 * 1024, // Set the max message size to 32MB
+
   });
   
   

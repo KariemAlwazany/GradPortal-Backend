@@ -25,6 +25,7 @@ router.get('/outOfStockItemsForSeller', itemsController.outOfStockItemsForSeller
 router.get('/countLimitedStock', itemsController.countLimitedStock);
 router.get('/countOutOfStockItems', itemsController.countOutOfStockItems);
 router.get('/getItemsForStudent', itemsController.getItemsForStudent);
+router.get('/countAllItems', itemsController.countAllItems);
 
 router.delete('/deleteItem/:id', itemsController.deleteItems);
 

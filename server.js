@@ -3,8 +3,13 @@ const admin = require('firebase-admin');
 
 admin.initializeApp({
   credential: admin.credential.cert(
-    require('../SW_Project/utils/serviceAccountKey.json'),
+    require('../SW_GP/utils/serviceAccountKey.json'),
   ),
+});
+
+const firestore = admin.firestore();
+firestore.settings({
+  ignoreUndefinedProperties: true,
 });
 
 process.on('uncaughtException', (err) => {

@@ -33,6 +33,8 @@ const favoriteItemsRouter = require('./routes/favoriteItemsRouter');
 const communityRouter = require('./routes/communityRouter');
 const ratingRouter = require('./routes/ratingRouter');
 const notificationRouter = require('./routes/notificationRouter');
+const itemsRouter = require('./routes/itemsRouter');
+const shopRouter = require('./routes/shopRouter');
 
 const app = express();
 
@@ -89,7 +91,8 @@ app.use('/GP/v1/table', tableRouter);
 app.use('/GP/v1/room', roomRouter);
 app.use('/GP/v1/manage', manageRouter);
 app.use('/GP/v1/remove-partner', removePartnerRouter);
-
+app.use('/GP/v1/seller/items', itemsRouter);
+app.use('/GP/v1/shop', shopRouter);
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
