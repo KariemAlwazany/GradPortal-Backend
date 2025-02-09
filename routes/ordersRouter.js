@@ -9,6 +9,7 @@ router.post('/createOrder', ordersController.createOrder);
 router.post('/checkoutOrder', ordersController.checkoutOrder);
 router.post('/respondToOrder', ordersController.respondToOrder);
 
+router.get('/getProfitData', ordersController.getProfitData);
 router.get('/calculateProfit', ordersController.calculateProfit);
 router.get('/getOrdersForSeller', ordersController.getOrdersForSeller);
 router.get('/countPendingOrders', ordersController.countPendingOrders);
@@ -17,8 +18,10 @@ router.get('/getCompletedOrdersForSeller', ordersController.getCompletedOrdersFo
 router.get('/getRejectedOrdersForSeller', ordersController.getRejectedOrdersForSeller);
 router.get('/getCompletedOrdersForDelivery', ordersController.getCompletedOrdersForDelivery);
 router.get('/getBuyerId', ordersController.getBuyerId);
+router.get('/getBuyerPhoneNumber', ordersController.getBuyerPhoneNumber);
 
 router.patch('/updateOrderStatus', ordersController.updateOrderStatus);
+router.patch('/updateOrderStatusToDelivering', ordersController.updateOrderStatusToDelivering);
 
 module.exports = router;
 

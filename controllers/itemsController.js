@@ -604,6 +604,28 @@ const deleteItems = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while deleting the item', error: error.message });
   }
 };
+
+
+
+
+const countAllItems = async (req, res) => {
+  try {
+    // Count all items
+    const itemCount = await Items.count();
+
+    res.status(200).json({
+      message: 'Items counted successfully.',
+      totalItems: itemCount,
+    });
+  } catch (error) {
+    console.error('Error counting items:', error);
+    res.status(500).json({
+      message: 'An error occurred while counting items.',
+      error: error.message,
+    });
+  }
+};
+exports.countAllItems = countAllItems;
 exports.getItemsForStudent = getItemsForStudent;
 exports.findAllItems = factory.getAll(Items);
 exports.deleteItems = deleteItems;
