@@ -9,6 +9,7 @@ const upload = require('./../middleware/multer');
 router.use(authController.protect);
 
 router.post('/additem', upload.single('Picture'), itemsController.addItem);
+router.post('/additemStudent', upload.single('Picture'), itemsController.addItemForStudent);
 
 router.patch('/updateItem/:item_id', itemsController.updateItem);
 
@@ -23,6 +24,8 @@ router.get('/limitedStockItemsForSeller', itemsController.limitedStockForSeller)
 router.get('/outOfStockItemsForSeller', itemsController.outOfStockItemsForSeller);
 router.get('/countLimitedStock', itemsController.countLimitedStock);
 router.get('/countOutOfStockItems', itemsController.countOutOfStockItems);
+router.get('/getItemsForStudent', itemsController.getItemsForStudent);
+router.get('/countAllItems', itemsController.countAllItems);
 
 router.delete('/deleteItem/:id', itemsController.deleteItems);
 

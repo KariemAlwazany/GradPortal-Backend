@@ -42,10 +42,11 @@ const notifyUserById = async (req, res) => {
 
   try {
     // Fetch the user by primary key
-    const user = await User.findByPk(userId);
+    const user = await User.findOne({where: { id: userId}});
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    console.log(user.token);
     if (!user.token) {
       return res
         .status(400)

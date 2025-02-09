@@ -1,25 +1,33 @@
 const nodemailer = require('nodemailer');
 
+
 const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.EMAIL_HOST, // Use EMAIL_HOST (not HOST)
+    port: process.env.EMAIL_PORT, // Use EMAIL_PORT (not PORT)
+    secure: false, // For port 587 (TLS), secure should be false
     auth: {
-      user: process.env.EMAIL_USERNAME, // Your Gmail address
-      pass: process.env.EMAIL_PASSWORD, // Your Gmail app password
+      user: process.env.EMAIL_USERNAME,
+      pass: process.env.EMAIL_PASSWORD,
     },
     tls: {
+      ciphers: 'SSLv3', // Add this for compatibility with certain SMTP servers
       rejectUnauthorized: false, // Allow self-signed certificates
     },
+    maxMessageSize: 32 * 1024 * 1024, // Set the max message size to 32MB
+
   });
-
+  
+  
   const mailOptions = {
-    from: 'GradeHub Inc. <GradeHub@co.com>', // Sender address
-    to: options.email, // Recipient's email address
-    subject: options.subject, // Email subject
-    text: options.message, // Plain text body
-    html: options.html, // HTML body (if any)
+  from: 'Gradhub Inc. <GradHub@co.com>',
+  to: options.email,
+  subject: options.subject,
+  text: options.message,
+      html: options.html,
   };
-
+  
   await transporter.sendMail(mailOptions);
-};
+
+}
 module.exports = sendEmail;

@@ -54,6 +54,70 @@ const addItem = async (req, res) => {
 
 
 
+const addItemForStudent = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    const { item_name, Quantity, Price, Description, Type, Available, Category } = req.body;
+    if (!item_name || !Quantity || !Price || !Description || !Type || !Category) {
+      return res.status(400).json({ message: 'All required fields must be provided' });
+    }
+
+    const Shop_name = "Students Shop";
+    const Picture = req.file.buffer; 
+    const newItem = await Items.create({
+      item_name,
+      Quantity,
+      Price,
+      Description,
+      Category,
+      Type,
+      Available: Available === 'true', 
+      Picture,
+      Shop_name,
+      Item_owner: "adminS",
+    });
+    res.status(201).json({
+      message: 'Item uploaded successfully',
+      item: newItem,
+    });
+  } catch (error) {
+    console.error('Error uploading item:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+
+
+const getItemsForStudent = catchAsync(async (req, res, next) => {
+
+  const Shop_name = "Students Shop";
+  const items = await Items.findAll({ where: { shop_name: Shop_name } });
+
+  if (items.length === 0) {
+    return res.status(404).json({ message: 'No Items found' }); 
+  }
+
+  const itemsWithPictures = items.map(item => {
+    const itemData = item.toJSON(); 
+    if (itemData.Picture) {
+      itemData.Picture = itemData.Picture.toString('base64');  
+    }
+    return itemData;
+  });
+  res.status(200).json({
+    message: 'Items fetched successfully',
+    items: itemsWithPictures,
+  });
+});
+
+
+
+
+
 const getItemsForSeller = catchAsync(async (req, res, next) => {
   const userID = req.user.id;
   const user = await User.findOne({ where: { id: userID } });
@@ -542,6 +606,27 @@ const deleteItems = async (req, res) => {
 };
 
 
+
+
+const countAllItems = async (req, res) => {
+  try {
+    // Count all items
+    const itemCount = await Items.count();
+
+    res.status(200).json({
+      message: 'Items counted successfully.',
+      totalItems: itemCount,
+    });
+  } catch (error) {
+    console.error('Error counting items:', error);
+    res.status(500).json({
+      message: 'An error occurred while counting items.',
+      error: error.message,
+    });
+  }
+};
+exports.countAllItems = countAllItems;
+exports.getItemsForStudent = getItemsForStudent;
 exports.findAllItems = factory.getAll(Items);
 exports.deleteItems = deleteItems;
 exports.getItemsByID = factory.getOne(Items);
@@ -558,3 +643,4 @@ exports.limitedStockForSeller = limitedStockForSeller;
 exports.outOfStockItemsForSeller = outOfStockItemsForSeller;
 exports.countLimitedStock = countLimitedStock;
 exports.countOutOfStockItems = countOutOfStockItems;
+exports.addItemForStudent = addItemForStudent;

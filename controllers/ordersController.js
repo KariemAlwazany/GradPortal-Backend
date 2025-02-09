@@ -260,13 +260,11 @@ const createOrder = catchAsync(async (req, res, next) => {
   
   
   
-
-
   const updateOrderStatus = catchAsync(async (req, res, next) => {
     const { order_id, status } = req.body;
   
     // Validate input
-    if (!order_id || !status || !['completed', 'declined'].includes(status.toLowerCase())) {
+    if (!order_id || !status || !['approved', 'declined', 'accepted'].includes(status.toLowerCase())) {
       return res.status(400).json({ message: 'Invalid order ID or status provided.' });
     }
   
@@ -278,17 +276,17 @@ const createOrder = catchAsync(async (req, res, next) => {
       }
   
       // Step 2: Update order status
-      order.status = status.toLowerCase() === 'approved' ? 'completed' : 'declined';
+      order.status = ['approved', 'accepted'].includes(status.toLowerCase()) ? 'completed' : 'declined';
       await order.save();
   
-      if (status.toLowerCase() === 'approved') {
-        // Step 3: Find all OrderItems associated with this order
+      if (['approved', 'accepted'].includes(status.toLowerCase())) {
+        // Step 3: Update item quantities if approved
         const orderItems = await OrderItems.findAll({
           where: { order_id },
           include: [
             {
               model: Items,
-              as: 'Item', // Use the correct alias defined in your association
+              as: 'Item',
               attributes: ['Item_ID', 'item_name', 'Quantity'],
             },
           ],
@@ -298,9 +296,8 @@ const createOrder = catchAsync(async (req, res, next) => {
           return res.status(404).json({ message: 'No items found for this order.' });
         }
   
-        // Step 4: Update item quantities
         for (const orderItem of orderItems) {
-          const item = orderItem.Item; // Joined item details
+          const item = orderItem.Item;
   
           if (!item || item.Quantity < orderItem.quantity) {
             return res.status(400).json({
@@ -318,7 +315,7 @@ const createOrder = catchAsync(async (req, res, next) => {
         });
       }
   
-      // If order is declined, just update status
+      // If order is declined
       return res.status(200).json({
         message: `Order status updated to ${order.status}.`,
       });
@@ -330,6 +327,8 @@ const createOrder = catchAsync(async (req, res, next) => {
       });
     }
   });
+
+  
 
 
 
@@ -601,7 +600,7 @@ const createOrder = catchAsync(async (req, res, next) => {
       const sellerItemIDs = sellerItems.map((item) => item.Item_ID);
   
       const orders = await Orders.findAll({
-        where: { status: ['rejected'] }, // Fetch both pending and rejected orders
+        where: { status: ['declined'] }, // Fetch both pending and rejected orders
         include: [
           {
             model: OrderItems,
@@ -748,54 +747,56 @@ const createOrder = catchAsync(async (req, res, next) => {
 
 
 
-const respondToOrder = async (req, res) => {
-  const { orderId, response } = req.body; 
-
-  try {
-    const order = await Orders.findByPk(orderId);
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+  const respondToOrder = async (req, res) => {
+    const { orderId, response } = req.body;
+  
+    try {
+      const order = await Orders.findByPk(orderId);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+  
+      // Allow for both 'accepted' and 'approved' as valid inputs for acceptance
+      order.status = response === 'accepted' || response === 'approved' ? 'completed' : 'declined';
+      await order.save();
+  
+      const user = await User.findByPk(order.buyer_id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      const subject = response === 'accepted' || response === 'approved' ? 'Order Approved' : 'Order Rejected';
+      const message =
+        response === 'accepted' || response === 'approved'
+          ? `Your order (ID: ${order.order_id}) has been approved by the seller.`
+          : `Unfortunately, your order (ID: ${order.order_id}) has been rejected by the seller.`;
+  
+      const html =
+        response === 'accepted' || response === 'approved'
+          ? `<p>Hello ${user.Username},</p>
+             <p>Your order <strong>(ID: ${order.order_id})</strong> has been approved by the seller.</p>
+             <p>Thank you for shopping with us!</p>`
+          : `<p>Hello ${user.Username},</p>
+             <p>Unfortunately, your order <strong>(ID: ${order.order_id})</strong> has been declined by the seller.</p>
+             <p>We apologize for the inconvenience.</p>`;
+  
+      await sendEmail({
+        email: user.Email,
+        subject,
+        message,
+        html,
+      });
+  
+      res.status(200).json({
+        message: `Order ${response} successfully, email notification sent.`,
+        order,
+      });
+    } catch (error) {
+      console.error('Error in respondToOrder:', error);
+      res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
-
-    order.status = response === 'accepted' ? 'completed' : 'declined';
-    await order.save();
-
-    const user = await User.findByPk(order.buyer_id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const subject = response === 'accepted' ? 'Order Approved' : 'Order rejected';
-    const message =
-      response === 'accepted'
-        ? `Your order (ID: ${order.id}) has been approved by the seller.`
-        : `Unfortunately, your order (ID: ${order.id}) has been rejected by the seller.`;
-
-    const html =
-      response === 'accepted'
-        ? `<p>Hello ${user.Username},</p>
-           <p>Your order <strong>(ID: ${order.id})</strong> has been approved by the seller.</p>
-           <p>Thank you for shopping with us!</p>`
-        : `<p>Hello ${user.Username},</p>
-           <p>Unfortunately, your order <strong>(ID: ${order.id})</strong> has been declined by the seller.</p>
-           <p>We apologize for the inconvenience.</p>`;
-
-    await sendEmail({
-      email: user.Email,
-      subject,
-      message,
-      html,
-    });
-
-    res.status(200).json({
-      message: `Order ${response} successfully, email notification sent.`,
-      order,
-    });
-  } catch (error) {
-    console.error('Error in respondToOrder:', error);
-    res.status(500).json({ message: 'Internal Server Error', error: error.message });
-  }
-};
+  };
+  
 
 
 
@@ -850,6 +851,197 @@ const getCompletedOrdersForDelivery = async (req, res, next) => {
     });
   }
 };
+
+
+const profitStore = {}; // Key-value store for order profits
+const orderId = '1'; // Replace with the actual order ID
+profitStore[orderId] = 6;
+const calculateProfit = async (orderId) => {
+  try {
+    // Step 1: Fetch all order items for the given order ID
+    const orderItems = await OrderItems.findAll({
+      where: { order_id: orderId },
+      include: [
+        {
+          model: Items,
+          as: 'Item', // Use the alias defined in your associations
+          attributes: ['Shop_name', 'Price'],
+        },
+      ],
+    });
+
+    if (!orderItems || orderItems.length === 0) {
+      console.log('No items found for the given order ID.');
+      return {
+        totalSales: 0,
+        platformProfit: 0,
+        netEarnings: 0,
+      };
+    }
+
+    let totalSales = 0; // Total sales for "Students Shop" items
+    let platformProfit = 0; // Platform's 5% profit
+    let netEarnings = 0; // Seller's remaining earnings after profit deduction
+
+    // Step 2: Iterate through the items and calculate profit and earnings
+    for (const orderItem of orderItems) {
+      const { Item, quantity, price } = orderItem;
+
+      // Ensure the associated item exists and is from "Students Shop"
+      if (Item && Item.Shop_name === 'Students Shop') {
+        const itemTotal = price * quantity; // Total price for the item
+        const itemProfit = itemTotal * 0.05; // Platform's 5% profit
+        const itemEarnings = itemTotal - itemProfit; // Seller's net earnings
+
+        totalSales += itemTotal;
+        platformProfit += itemProfit;
+        netEarnings += itemEarnings;
+      }
+    }
+
+    // Step 3: Update the in-memory profit store
+    if (!profitStore[orderId]) {
+      profitStore[orderId] = { totalSales: 0, platformProfit: 0, netEarnings: 0 };
+    }
+
+    // Add the calculated profit to the existing values in the store
+    profitStore[orderId].totalSales += totalSales;
+    profitStore[orderId].platformProfit += platformProfit;
+    profitStore[orderId].netEarnings += netEarnings;
+
+    // Return the updated profit data for this order
+    return profitStore[orderId];
+  } catch (error) {
+    console.error('Error calculating profit:', error);
+    throw error;
+  }
+};
+
+
+
+
+const getProfitData = async (req, res) => {
+    res.status(200).json({
+      message: 'Profit store retrieved successfully',
+      data: profitStore,
+    });
+  };
+
+
+
+
+
+
+
+const getBuyerId = async (req, res) => {
+  const { orderId } = req.query; // Retrieve orderId from query parameters
+
+  if (!orderId) {
+    return res.status(400).json({ error: 'Order ID is required' });
+  }
+
+  try {
+    // Fetch the order with the specified orderId
+    const order = await Orders.findOne({
+      where: { order_id: orderId },
+      attributes: ['buyer_id'], // Only fetch the buyer_id field
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Return the buyer_id
+    res.status(200).json({ buyer_id: order.buyer_id });
+  } catch (error) {
+    console.error('Error fetching buyer ID:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the buyer ID' });
+  }
+};
+
+
+
+
+const getBuyerPhoneNumber = async (req, res) => {
+  const { orderId } = req.query; // Retrieve orderId from query parameters
+
+  if (!orderId) {
+    return res.status(400).json({ error: 'Order ID is required' });
+  }
+
+  try {
+    // Fetch the order with the specified orderId
+    const order = await Orders.findOne({
+      where: { order_id: orderId },
+      attributes: ['buyer_id'], // Only fetch the buyer_id field
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Fetch the buyer's phone number using the buyer_id
+    const buyer = await User.findOne({
+      where: { id: order.buyer_id }, // Use buyer_id to search in the User table
+      attributes: ['phone_number'], // Only fetch the phone_number field
+    });
+
+    if (!buyer) {
+      return res.status(404).json({ error: 'Buyer not found' });
+    }
+
+    // Return the phone number
+    res.status(200).json({
+      buyer_id: order.buyer_id,
+      phone_number: buyer.phone_number,
+    });
+  } catch (error) {
+    console.error('Error fetching buyer phone number:', error);
+    res.status(500).json({ error: 'An error occurred while fetching the buyer phone number' });
+  }
+};
+
+
+
+
+const updateOrderStatusToDelivering = async (req, res) => {
+  const { orderId } = req.body; // Retrieve orderId from request body
+
+  if (!orderId) {
+    return res.status(400).json({ error: 'Order ID is required' });
+  }
+
+  try {
+    // Find the order by ID
+    const order = await Orders.findOne({
+      where: { order_id: orderId },
+    });
+
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Update the status to 'Delivering'
+    order.status = 'Delivering';
+    await order.save();
+
+    res.status(200).json({
+      message: `Order #${orderId} status updated to Delivering successfully.`,
+      order,
+    });
+  } catch (error) {
+    console.error('Error updating order status to Delivering:', error);
+    res.status(500).json({
+      error: 'An error occurred while updating the order status.',
+    });
+  }
+};
+
+exports.updateOrderStatusToDelivering = updateOrderStatusToDelivering;
+exports.getBuyerPhoneNumber = getBuyerPhoneNumber;
+exports.getBuyerId = getBuyerId;
+exports.getProfitData = getProfitData;
+exports.calculateProfit = calculateProfit;
 exports.createOrder = createOrder;
 exports.getOrdersForSeller = getOrdersForSeller;
 exports.updateOrderStatus = updateOrderStatus;
