@@ -45,7 +45,7 @@ const Table = sequelize.define('Discussion_Table', {
   },
   Submission: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
 });
 

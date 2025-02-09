@@ -34,7 +34,7 @@ const Projects = sequelize.define('GP', {
   },
   GP_Description: {
     type: DataTypes.TEXT,
-    allowNull: false,
+    allowNull: true,
   },
   done: {
     type: DataTypes.STRING,
@@ -42,7 +42,7 @@ const Projects = sequelize.define('GP', {
   },
   Submission: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
 });
 

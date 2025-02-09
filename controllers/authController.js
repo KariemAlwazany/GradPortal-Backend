@@ -51,8 +51,13 @@ exports.signup = catchAsync(async (req, res, next) => {
     req.body;
   console.log(req.body);
   approval = 'true';
-  if (Role == 'Doctor' || Role == 'Seller' || Role == 'Delivery') {
-    approval = 'true';
+  if (
+    Role == 'Doctor' ||
+    Role == 'Seller' ||
+    Role == 'Delivery' ||
+    Role == 'Student'
+  ) {
+    approval = 'false';
   }
   const newUser = await User.create({
     Username: Username,

@@ -5,8 +5,10 @@ const manageController = require('./../controllers/manageController');
 const router = express.Router();
 router.post('/doctors', waitingController.acceptOneOfThree);
 
-router.get('/doctors', waitingController.getThreeDoctors);
 router.use(authController.protect);
+router.post('/doctors', waitingController.acceptOneOfThree);
+
+router.get('/doctors', waitingController.getThreeDoctors);
 router.patch('/projectSelected', waitingController.projectSelected);
 router.patch('/informationEntered', waitingController.infromationEntered);
 
