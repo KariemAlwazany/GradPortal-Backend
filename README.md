@@ -4,6 +4,6 @@ For more information about the project: https://drive.google.com/file/d/188Gdn0o
 <br>
 Detailed Demo: [[Detailed Demo](https://youtu.be/5kLSP9erV48)]
 <br>
-Short Demo: [[Short Demo]((https://youtu.be/dY6mmBUxT-w))]
+Short Demo: [[Short Demo](https://youtu.be/dY6mmBUxT-w)]
 <br>
 Project Frontend: [[Project Frontend](https://github.com/KariemAlwazany/GradPortal-Frontend)]
